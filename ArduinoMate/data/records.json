@@ -1,0 +1,115 @@
+[
+  {
+    "id": 1,
+    "title": "Blinking LED with Pushbutton Switch",
+    "description": "Learn basic digital input and output with Arduino. Read a momentary tactile pushbutton on a digital input pin and toggle an LED on digital pin 13 with software debouncing.",
+    "category": "LED projects",
+    "tags": ["LED", "digitalRead", "digitalWrite", "pushbutton", "GPIO", "beginner"]
+  },
+  {
+    "id": 2,
+    "title": "RGB LED Color Fader Using PWM",
+    "description": "Create smooth color transitions with an RGB LED using Pulse Width Modulation (PWM). Control red, green, and blue brightness levels independently using analogWrite pins.",
+    "category": "LED projects",
+    "tags": ["LED", "RGB", "PWM", "analogWrite", "color", "analog"]
+  },
+  {
+    "id": 3,
+    "title": "DHT11 Digital Temperature and Humidity Sensor",
+    "description": "Measure ambient temperature and relative humidity using the DHT11 single-bus digital sensor. Read calibrated digital signals and output real-time sensor data over the Serial Monitor.",
+    "category": "Temperature sensors",
+    "tags": ["temperature", "humidity", "DHT11", "sensor", "serial", "weather"]
+  },
+  {
+    "id": 4,
+    "title": "DS18B20 Waterproof One-Wire Temperature Probe",
+    "description": "Read high-precision temperature measurements from multiple waterproof DS18B20 digital probes connected to a single OneWire data bus with 4.7k ohm pull-up resistor.",
+    "category": "Temperature sensors",
+    "tags": ["temperature", "DS18B20", "OneWire", "probe", "waterproof", "sensor"]
+  },
+  {
+    "id": 5,
+    "title": "HC-SR04 Ultrasonic Distance Meter and Parking Sensor",
+    "description": "Calculate distance to obstacles by emitting 40kHz ultrasound pulses and timing echo reflection with pulseIn. Trigger warning beeps and visual indicators as objects approach.",
+    "category": "Ultrasonic sensors",
+    "tags": ["ultrasonic", "distance", "HC-SR04", "pulseIn", "obstacle", "sensor"]
+  },
+  {
+    "id": 6,
+    "title": "16x2 Character LCD Display with I2C Backpack",
+    "description": "Connect a standard 16x2 HD44780 liquid crystal character display using only two I2C communication wires (SDA and SCL) via PCF8574 expander with LiquidCrystal_I2C library.",
+    "category": "LCD displays",
+    "tags": ["LCD", "I2C", "display", "SDA", "SCL", "LiquidCrystal", "interface"]
+  },
+  {
+    "id": 7,
+    "title": "SSD1306 0.96 inch Monochrome I2C OLED Display",
+    "description": "Display graphics, bitmaps, sensor plots, and text on a 128x64 pixel OLED screen using hardware I2C with the Adafruit SSD1306 and GFX display driver libraries.",
+    "category": "LCD displays",
+    "tags": ["OLED", "display", "SSD1306", "I2C", "graphics", "128x64"]
+  },
+  {
+    "id": 8,
+    "title": "SG90 Micro Servo Motor Control with Potentiometer",
+    "description": "Position a 9g SG90 micro servo motor between 0 and 180 degrees using the Arduino Servo library. Read analog input from a 10k potentiometer and map the values to servo angles.",
+    "category": "Servo motors",
+    "tags": ["servo", "motor", "SG90", "potentiometer", "analogRead", "map", "actuator"]
+  },
+  {
+    "id": 9,
+    "title": "Dual-Axis Pan and Tilt Servo Gimbal",
+    "description": "Coordinate two hobby servo motors to rotate a camera or sensor module horizontally (pan) and vertically (tilt) using analog 2-axis joystick input.",
+    "category": "Servo motors",
+    "tags": ["servo", "pan-tilt", "gimbal", "joystick", "motor", "robotics"]
+  },
+  {
+    "id": 10,
+    "title": "Hardware Interrupts on Pin 2 for Rotary Encoder",
+    "description": "Handle high-speed rotary encoder pulses asynchronously without polling in the main loop using attachInterrupt on external interrupt pins 2 and 3 for precise rotation tracking.",
+    "category": "Arduino programming",
+    "tags": ["interrupts", "attachInterrupt", "encoder", "ISR", "programming", "advanced"]
+  },
+  {
+    "id": 11,
+    "title": "Non-Volatile Storage with Internal EEPROM",
+    "description": "Save calibration constants, user settings, and device state to Arduino internal EEPROM memory so configuration survives power resets using EEPROM.get and EEPROM.put.",
+    "category": "Arduino programming",
+    "tags": ["EEPROM", "memory", "storage", "programming", "persistent", "flash"]
+  },
+  {
+    "id": 12,
+    "title": "HC-05 Bluetooth Serial Wireless Module",
+    "description": "Send commands and receive telemetry wirelessly between an Arduino Uno and an Android smartphone over UART serial using the HC-05 Bluetooth module and SoftwareSerial.",
+    "category": "Bluetooth projects",
+    "tags": ["bluetooth", "HC-05", "wireless", "SoftwareSerial", "UART", "communication"]
+  },
+  {
+    "id": 13,
+    "title": "Bluetooth Controlled RC Robot Car",
+    "description": "Drive a motorized smart robot chassis wirelessly using smartphone Bluetooth app commands (forward, backward, left, right, stop) parsed over serial protocol.",
+    "category": "Bluetooth projects",
+    "tags": ["bluetooth", "robot", "car", "wireless", "motor", "remote"]
+  },
+  {
+    "id": 14,
+    "title": "Two-Wheel Drive (2WD) Obstacle Avoiding Autonomous Robot",
+    "description": "Build an autonomous wheeled robot using an L298N H-bridge dual motor driver and an HC-SR04 ultrasonic sensor mounted on a scanning servo to navigate around obstacles.",
+    "category": "Robotics",
+    "tags": ["robotics", "L298N", "motor-driver", "obstacle-avoidance", "autonomous", "wheels"]
+  },
+  {
+    "id": 15,
+    "title": "4-Channel Infrared (IR) Line Tracking Robot",
+    "description": "Guide a differential drive robot along black tape paths using a multi-sensor infrared reflectivity detector array and PID steering corrections.",
+    "category": "Robotics",
+    "tags": ["robotics", "line-follower", "IR", "sensor", "PID", "motors"]
+  },
+  {
+    "id": 16,
+    "title": "Home Automation with 5V Relay and PIR Motion Detector",
+    "description": "Switch 120V/240V AC appliances or DC loads automatically upon detecting human body motion using a passive infrared (PIR) motion sensor and an optically isolated 5V relay module.",
+    "category": "Automation",
+    "tags": ["relay", "PIR", "motion", "automation", "sensor", "AC-control"]
+  }
+]
+
