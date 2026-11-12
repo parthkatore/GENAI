@@ -1,115 +1,202 @@
 [
   {
+    "function_name": "analogRead",
+    "category": "Analog I/O",
+    "syntax": "analogRead(pin)",
+    "returns": "The analog reading on the pin. Although it is limited to the resolution of the analog to digital converter (0-1023 for 10 bits or 0-4095 for 12 bits). Data type: int.",
+    "common_gotcha": "If the analog input pin is not connected to anything, the value returned by analogRead() will fluctuate based on a number of factors (e.g. the values of the other analog inputs, how close your hand is to the board, etc.).",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/analog-io/analogread/",
     "id": 1,
-    "title": "Blinking LED with Pushbutton Switch",
-    "description": "Learn basic digital input and output with Arduino. Read a momentary tactile pushbutton on a digital input pin and toggle an LED on digital pin 13 with software debouncing.",
-    "category": "LED projects",
-    "tags": ["LED", "digitalRead", "digitalWrite", "pushbutton", "GPIO", "beginner"]
+    "description": "Reads the value from the specified analog pin. Arduino boards contain a multichannel, 10-bit analog to digital converter. This means that it will map input voltages between 0 and the operating voltage(5V or 3.3V) into integer values between 0 and 1023. On an Arduino UNO, for example, this yields a resolution between readings of: 5 volts / 1024 units or, 0.0049 volts (4.9 mV) per unit. See the table below for the usable pins, operating voltage and maximum resolution for some Arduino boards. The input range can be changed using , while the resolution can be changed (only for Zero, Due and MKR boards) using On ATmega based boards (UNO, Nano, Mini, Mega), it takes about 100 microseconds (0.0001 s) to read an analog input, so the maximum reading rate is about 10,000 times a second."
   },
   {
+    "function_name": "analogReference",
+    "category": "Analog I/O",
+    "syntax": "analogReference(type)",
+    "returns": "None",
+    "common_gotcha": "Available reference types vary by board. Applying a voltage higher than the selected reference can damage the MCU.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/analog-io/analogreference/",
     "id": 2,
-    "title": "RGB LED Color Fader Using PWM",
-    "description": "Create smooth color transitions with an RGB LED using Pulse Width Modulation (PWM). Control red, green, and blue brightness levels independently using analogWrite pins.",
-    "category": "LED projects",
-    "tags": ["LED", "RGB", "PWM", "analogWrite", "color", "analog"]
+    "description": null
   },
   {
+    "function_name": "analogWrite",
+    "category": "Analog I/O",
+    "syntax": "analogWrite(pin, value)",
+    "returns": "Nothing",
+    "common_gotcha": "The PWM outputs generated on pins 5 and 6 will have higher-than-expected duty cycles. This is because of interactions with the millis() and delay() functions, which share the same internal timer used to generate those PWM outputs.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/analog-io/analogwrite/",
     "id": 3,
-    "title": "DHT11 Digital Temperature and Humidity Sensor",
-    "description": "Measure ambient temperature and relative humidity using the DHT11 single-bus digital sensor. Read calibrated digital signals and output real-time sensor data over the Serial Monitor.",
-    "category": "Temperature sensors",
-    "tags": ["temperature", "humidity", "DHT11", "sensor", "serial", "weather"]
+    "description": "Writes an analog value ( to a pin. Can be used to light a LED at varying brightnesses or drive a motor at various speeds. After a call to analogWrite(), the pin will generate a steady rectangular wave of the specified duty cycle until the next call to analogWrite() (or a call to digitalRead() or digitalWrite()) on the same pin."
   },
   {
+    "function_name": "attachInterrupt",
+    "category": "Interrupts",
+    "syntax": "attachInterrupt(digitalPinToInterrupt(pin), ISR, mode) (recommended) + attachInterrupt(interrupt, ISR, mode) (not recommended) + attachInterrupt(pin, ISR, mode) (Not recommended. Additionally, this syntax only works on Arduino SAMD Boards, Uno WiFi Rev2, Due, and 101.)",
+    "returns": "Nothing",
+    "common_gotcha": "Note + Inside the attached function, delay() won't work and the value returned by millis() will not increment. Serial data received while in the function may be lost.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/external-interrupts/attachinterrupt/",
     "id": 4,
-    "title": "DS18B20 Waterproof One-Wire Temperature Probe",
-    "description": "Read high-precision temperature measurements from multiple waterproof DS18B20 digital probes connected to a single OneWire data bus with 4.7k ohm pull-up resistor.",
-    "category": "Temperature sensors",
-    "tags": ["temperature", "DS18B20", "OneWire", "probe", "waterproof", "sensor"]
+    "description": "Digital Pins With Interrupts The first parameter to attachInterrupt() is an interrupt number. Normally you should use digitalPinToInterrupt(pin) to translate the actual digital pin to the specific interrupt number. For example, if you connect to pin 3, use digitalPinToInterrupt(3) as the first parameter to attachInterrupt()."
   },
   {
+    "function_name": "constrain",
+    "category": "Math",
+    "syntax": "constrain(value, min, max)",
+    "returns": "value clamped to [min, max]",
+    "common_gotcha": "min must be less than or equal to max. Swapping them does not automatically fix it.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/math/constrain/",
     "id": 5,
-    "title": "HC-SR04 Ultrasonic Distance Meter and Parking Sensor",
-    "description": "Calculate distance to obstacles by emitting 40kHz ultrasound pulses and timing echo reflection with pulseIn. Trigger warning beeps and visual indicators as objects approach.",
-    "category": "Ultrasonic sensors",
-    "tags": ["ultrasonic", "distance", "HC-SR04", "pulseIn", "obstacle", "sensor"]
+    "description": null
   },
   {
+    "function_name": "delay",
+    "category": "Time",
+    "syntax": "delay(ms)",
+    "returns": "Nothing",
+    "common_gotcha": "While it is easy to create a blinking LED with the delay() function and many sketches use short delays for such tasks as switch debouncing, the use of delay() in a sketch has significant drawbacks. No other reading of sensors, mathematic…",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/time/delay/",
     "id": 6,
-    "title": "16x2 Character LCD Display with I2C Backpack",
-    "description": "Connect a standard 16x2 HD44780 liquid crystal character display using only two I2C communication wires (SDA and SCL) via PCF8574 expander with LiquidCrystal_I2C library.",
-    "category": "LCD displays",
-    "tags": ["LCD", "I2C", "display", "SDA", "SCL", "LiquidCrystal", "interface"]
+    "description": "Pauses the program for the amount of time (in milliseconds) specified as parameter. (There are 1000 milliseconds in a second.)"
   },
   {
+    "function_name": "delayMicroseconds",
+    "category": "Time",
+    "syntax": "delayMicroseconds(us)",
+    "returns": "None",
+    "common_gotcha": "Accuracy degrades for values above ~16 383 µs. Interrupts are disabled during the delay, affecting Serial.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/time/delaymicroseconds/",
     "id": 7,
-    "title": "SSD1306 0.96 inch Monochrome I2C OLED Display",
-    "description": "Display graphics, bitmaps, sensor plots, and text on a 128x64 pixel OLED screen using hardware I2C with the Adafruit SSD1306 and GFX display driver libraries.",
-    "category": "LCD displays",
-    "tags": ["OLED", "display", "SSD1306", "I2C", "graphics", "128x64"]
+    "description": null
   },
   {
+    "function_name": "digitalRead",
+    "category": "Digital I/O",
+    "syntax": "digitalRead(pin)",
+    "returns": "HIGH or LOW",
+    "common_gotcha": "If the pin isn't connected to anything, digitalRead() can return either HIGH or LOW (and this can change randomly). The analog input pins can be used as digital pins, referred to as A0, A1, etc.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/digital-io/digitalread/",
     "id": 8,
-    "title": "SG90 Micro Servo Motor Control with Potentiometer",
-    "description": "Position a 9g SG90 micro servo motor between 0 and 180 degrees using the Arduino Servo library. Read analog input from a 10k potentiometer and map the values to servo angles.",
-    "category": "Servo motors",
-    "tags": ["servo", "motor", "SG90", "potentiometer", "analogRead", "map", "actuator"]
+    "description": "Reads the value from a specified digital pin, either HIGH or LOW."
   },
   {
+    "function_name": "digitalWrite",
+    "category": "Digital I/O",
+    "syntax": "digitalWrite(pin, value)",
+    "returns": "Nothing",
+    "common_gotcha": "The analog input pins can be used as digital pins, referred to as A0, A1, etc. The exception is the Arduino Nano, Pro Mini, and Mini's A6 and A7 pins, which can only be used as analog inputs.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/digital-io/digitalwrite/",
     "id": 9,
-    "title": "Dual-Axis Pan and Tilt Servo Gimbal",
-    "description": "Coordinate two hobby servo motors to rotate a camera or sensor module horizontally (pan) and vertically (tilt) using analog 2-axis joystick input.",
-    "category": "Servo motors",
-    "tags": ["servo", "pan-tilt", "gimbal", "joystick", "motor", "robotics"]
+    "description": "Write a HIGH or a LOW value to a digital pin. If the pin has been configured as an OUTPUT with pinMode(), its voltage will be set to the corresponding value: 5V (or 3.3V on 3.3V boards) for HIGH, 0V (ground) for LOW. If the pin is configured as an INPUT, digitalWrite() will enable (HIGH) or disable (LOW) the internal pullup on the input pin. It is recommended to set the pinMode() to INPUT_PULLUP to enable the internal pull-up resistor. See the tutorial for more information. If you do not set the pinMode() to OUTPUT, and connect an LED to a pin, when calling digitalWrite(HIGH), the LED may appear dim. Without explicitly setting pinMode(), digitalWrite() will have enabled the internal pull-up resistor, which acts like a large current-limiting resistor."
   },
   {
+    "function_name": "map",
+    "category": "Math",
+    "syntax": "map(value, fromLow, fromHigh, toLow, toHigh)",
+    "returns": "long – the mapped value",
+    "common_gotcha": "Does NOT constrain the output to the target range. Values outside fromLow–fromHigh will produce out-of-range results. Use constrain() together with map() if needed.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/math/map/",
     "id": 10,
-    "title": "Hardware Interrupts on Pin 2 for Rotary Encoder",
-    "description": "Handle high-speed rotary encoder pulses asynchronously without polling in the main loop using attachInterrupt on external interrupt pins 2 and 3 for precise rotation tracking.",
-    "category": "Arduino programming",
-    "tags": ["interrupts", "attachInterrupt", "encoder", "ISR", "programming", "advanced"]
+    "description": null
   },
   {
+    "function_name": "micros",
+    "category": "Time",
+    "syntax": "micros()",
+    "returns": "unsigned long – microseconds since the board started",
+    "common_gotcha": "Wraps around after ~70 minutes on 16 MHz boards. Resolution is 4 µs on 16 MHz Uno.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/time/micros/",
     "id": 11,
-    "title": "Non-Volatile Storage with Internal EEPROM",
-    "description": "Save calibration constants, user settings, and device state to Arduino internal EEPROM memory so configuration survives power resets using EEPROM.get and EEPROM.put.",
-    "category": "Arduino programming",
-    "tags": ["EEPROM", "memory", "storage", "programming", "persistent", "flash"]
+    "description": null
   },
   {
+    "function_name": "millis",
+    "category": "Time",
+    "syntax": "time = millis()",
+    "returns": "Number of milliseconds passed since the program started. Data type: unsigned long.",
+    "common_gotcha": "The return value for millis() is of type unsigned long, logic errors may occur if a programmer tries to do arithmetic with smaller data types such as int. Even signed long may encounter errors as its maximum value is half that of its uns…",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/time/millis/",
     "id": 12,
-    "title": "HC-05 Bluetooth Serial Wireless Module",
-    "description": "Send commands and receive telemetry wirelessly between an Arduino Uno and an Android smartphone over UART serial using the HC-05 Bluetooth module and SoftwareSerial.",
-    "category": "Bluetooth projects",
-    "tags": ["bluetooth", "HC-05", "wireless", "SoftwareSerial", "UART", "communication"]
+    "description": "Returns the number of milliseconds passed since the Arduino board began running the current program. This number will overflow (go back to zero), after approximately 50 days."
   },
   {
+    "function_name": "noTone",
+    "category": "Advanced I/O",
+    "syntax": "noTone(pin)",
+    "returns": "None",
+    "common_gotcha": "Must be called on the same pin that tone() was started on. If duration was specified in tone(), noTone() is called automatically.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/advanced-io/notone/",
     "id": 13,
-    "title": "Bluetooth Controlled RC Robot Car",
-    "description": "Drive a motorized smart robot chassis wirelessly using smartphone Bluetooth app commands (forward, backward, left, right, stop) parsed over serial protocol.",
-    "category": "Bluetooth projects",
-    "tags": ["bluetooth", "robot", "car", "wireless", "motor", "remote"]
+    "description": null
   },
   {
+    "function_name": "pinMode",
+    "category": "Digital I/O",
+    "syntax": "pinMode(pin, mode)",
+    "returns": "Nothing",
+    "common_gotcha": "The analog input pins can be used as digital pins, referred to as A0, A1, etc.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/digital-io/pinmode/",
     "id": 14,
-    "title": "Two-Wheel Drive (2WD) Obstacle Avoiding Autonomous Robot",
-    "description": "Build an autonomous wheeled robot using an L298N H-bridge dual motor driver and an HC-SR04 ultrasonic sensor mounted on a scanning servo to navigate around obstacles.",
-    "category": "Robotics",
-    "tags": ["robotics", "L298N", "motor-driver", "obstacle-avoidance", "autonomous", "wheels"]
+    "description": "Configures the specified pin to behave either as an input or an output. See the page for details on the functionality of the pins. It is possible to enable the internal pullup resistors with the mode INPUT_PULLUP. Additionally, the INPUT mode explicitly disables the internal pullups."
   },
   {
+    "function_name": "pulseIn",
+    "category": "Advanced I/O",
+    "syntax": "pulseIn(pin, value)  or  pulseIn(pin, value, timeout)",
+    "returns": "unsigned long – pulse duration in microseconds; 0 on timeout",
+    "common_gotcha": "Blocks execution while waiting for the pulse. Default timeout is 1 second. Can miss events if used inside a busy loop.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/advanced-io/pulsein/",
     "id": 15,
-    "title": "4-Channel Infrared (IR) Line Tracking Robot",
-    "description": "Guide a differential drive robot along black tape paths using a multi-sensor infrared reflectivity detector array and PID steering corrections.",
-    "category": "Robotics",
-    "tags": ["robotics", "line-follower", "IR", "sensor", "PID", "motors"]
+    "description": null
   },
   {
+    "function_name": "random",
+    "category": "Math",
+    "syntax": "random(max)  or  random(min, max)",
+    "returns": "long – pseudo-random number; upper bound (max) is excluded",
+    "common_gotcha": "Produces the same sequence after each reset unless randomSeed() is called first (e.g., randomSeed(analogRead(0))).",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/random-numbers/random/",
     "id": 16,
-    "title": "Home Automation with 5V Relay and PIR Motion Detector",
-    "description": "Switch 120V/240V AC appliances or DC loads automatically upon detecting human body motion using a passive infrared (PIR) motion sensor and an optically isolated 5V relay module.",
-    "category": "Automation",
-    "tags": ["relay", "PIR", "motion", "automation", "sensor", "AC-control"]
+    "description": null
+  },
+  {
+    "function_name": "Serial.begin",
+    "category": "Serial",
+    "syntax": "_Serial_.begin(speed) + _Serial_.begin(speed, config)",
+    "returns": "Nothing",
+    "common_gotcha": "For USB CDC serial ports (e.g. Serial on the Leonardo), Serial.begin() is irrelevant.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/communication/serial/begin/",
+    "id": 17,
+    "description": "Sets the data rate in bits per second (baud) for serial data transmission. For communicating with Serial Monitor, make sure to use one of the baud rates listed in the menu at the bottom right corner of its screen. You can, however, specify other rates - for example, to communicate over pins 0 and 1 with a component that requires a particular baud rate. An optional second argument configures the data, parity, and stop bits. The default is 8 data bits, no parity, one stop bit."
+  },
+  {
+    "function_name": "Serial.print",
+    "category": "Serial",
+    "syntax": "_Serial_.print(val) + _Serial_.print(val, format)",
+    "returns": "print() returns the number of bytes written, though reading that number is optional. Data type: size_t.",
+    "common_gotcha": "For information on the asyncronicity of _Serial_.print(), see the Notes and Warnings section of the",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/communication/serial/print/",
+    "id": 18,
+    "description": "Prints data to the serial port as human-readable ASCII text. This command can take many forms. Numbers are printed using an ASCII character for each digit. Floats are similarly printed as ASCII digits, defaulting to two decimal places. Bytes are sent as a single character. Characters and strings are sent as is. For example- _Serial_.print(78) gives \"78\" + _Serial_.print(1.23456) gives \"1.23\" + _Serial_.print('N') gives \"N\" + _Serial_.print(\"Hello world.\") gives \"Hello world.\" An optional second parameter specifies the base (format) to use; permitted values are BIN(binary, or base 2), OCT(octal, or base 8), DEC(decimal, or base 10), HEX(hexadecimal, or base 16). For floating point numbers, this parameter specifies the number of decimal places to use. For example- _Serial_.print(78, BIN) gives \"1001110\" + _Serial_.print(78, OCT) gives \"116\" + _Serial_.print(78, DEC) gives \"78\" + _Serial_.print(78, HEX) gives \"4E\" + _Serial_.print(1.23456, 0) gives \"1\" + _Serial_.print(1.23456, 2) gives \"1.23\" + * _Serial_.print(1.23456, 4) gives \"1.2346\" You can pass flash-memory based strings to _Serial_.print() by wrapping them with For example: Serial.print(F(\"Hello World\")) To send data without conversion to its representation as characters, use"
+  },
+  {
+    "function_name": "Serial.read",
+    "category": "Serial",
+    "syntax": "Serial.read()",
+    "returns": "int – next byte as integer (0–255), or -1 if no data",
+    "common_gotcha": "Always check Serial.available() > 0 before calling Serial.read() to avoid reading -1 when the buffer is empty.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/communication/serial/read/",
+    "id": 19,
+    "description": null
+  },
+  {
+    "function_name": "tone",
+    "category": "Advanced I/O",
+    "syntax": "tone(pin, frequency)  or  tone(pin, frequency, duration)",
+    "returns": "None",
+    "common_gotcha": "Uses a hardware timer, which can interfere with PWM on certain pins. Only one tone can be generated at a time.",
+    "source_url": "https://docs.arduino.cc/language-reference/en/functions/advanced-io/tone/",
+    "id": 20,
+    "description": null
   }
 ]
-

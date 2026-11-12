@@ -1,15 +1,21 @@
-# ArduinoMate - Week 1 Dependencies
+# ArduinoMate — Week 1 Dependencies
+# Install with:  pip install -r requirements.txt
+
 # Web Framework & Server
 fastapi>=0.110.0
 uvicorn>=0.28.0
 pydantic>=2.0.0
 
-# Data Analysis & Machine Learning
+# Data Analysis
 pandas>=2.2.0
+
+# Machine Learning (TF-IDF + Cosine Similarity)
 scikit-learn>=1.4.0
 numpy>=1.26.0
 
-# Testing & Client Utilities
+# HTTP Client (fetching Arduino docs + API testing)
+requests>=2.31.0
 httpx>=0.27.0
-pytest>=8.0.0
 
+# Testing
+pytest>=8.0.0

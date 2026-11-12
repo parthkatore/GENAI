@@ -2,7 +2,8 @@
 ArduinoMate - Machine Learning Smart Search Test Suite
 ------------------------------------------------------
 Tests the TF-IDF Vectorizer and Cosine Similarity ranking logic,
-edge case handling, and caching behavior in app/smart_search.py.
+edge case handling, and caching behaviour in app/smart_search.py.
+Uses the Arduino-function record schema.
 """
 
 import sys
@@ -20,35 +21,41 @@ class TestSmartSearch(unittest.TestCase):
     """Test suite for TF-IDF Vectorizer & Cosine Similarity search engine."""
 
     def setUp(self):
-        """Prepare sample test dataset."""
+        """Prepare sample test dataset using Arduino-function schema."""
         self.sample_records = [
             {
                 "id": 1,
-                "title": "Blinking LED with Resistor",
-                "description": "Basic digital output tutorial to flash a 5mm LED.",
-                "category": "LED projects",
-                "tags": ["LED", "resistor", "digitalWrite"]
+                "function_name": "digitalRead",
+                "category": "Digital I/O",
+                "syntax": "digitalRead(pin)",
+                "returns": "HIGH or LOW",
+                "common_gotcha": "Pin must be configured as INPUT or INPUT_PULLUP first.",
+                "source_url": "https://docs.arduino.cc/language-reference/en/functions/digital-io/digitalread/"
             },
             {
                 "id": 2,
-                "title": "Ultrasonic Distance Sensor HC-SR04",
-                "description": "Echo and trigger pin measurement for obstacle detection.",
-                "category": "Ultrasonic sensors",
-                "tags": ["ultrasonic", "distance", "HC-SR04"]
+                "function_name": "analogRead",
+                "category": "Analog I/O",
+                "syntax": "analogRead(pin)",
+                "returns": "Integer 0-1023",
+                "common_gotcha": "Only works on analog pins A0-A5 on Uno.",
+                "source_url": "https://docs.arduino.cc/language-reference/en/functions/analog-io/analogread/"
             },
             {
                 "id": 3,
-                "title": "Servo Motor Angle Controller",
-                "description": "Rotate a micro servo horn between 0 and 180 degrees using PWM.",
-                "category": "Servo motors",
-                "tags": ["servo", "motor", "PWM"]
+                "function_name": "Serial.begin",
+                "category": "Serial",
+                "syntax": "Serial.begin(speed)",
+                "returns": "None",
+                "common_gotcha": "Baud rate in Serial Monitor must match.",
+                "source_url": "https://docs.arduino.cc/language-reference/en/functions/communication/serial/begin/"
             }
         ]
         self.engine = SmartSearchEngine()
 
     def test_search_ranks_correctly(self):
-        """Searching for 'ultrasonic' must rank the ultrasonic record first."""
-        results = self.engine.search("ultrasonic distance", records=self.sample_records)
+        """Searching for 'analogRead' must rank the analog record first."""
+        results = self.engine.search("analogRead analog pin", records=self.sample_records)
         self.assertGreaterEqual(len(results), 1)
         self.assertEqual(results[0]["id"], 2)
         self.assertIn("similarity_score", results[0])
@@ -56,7 +63,7 @@ class TestSmartSearch(unittest.TestCase):
 
     def test_similarity_scores_are_descending(self):
         """Results must be ordered strictly from highest similarity to lowest."""
-        results = self.engine.search("motor led", records=self.sample_records, top_k=3)
+        results = self.engine.search("pin read", records=self.sample_records, top_k=3)
         scores = [r["similarity_score"] for r in results]
         self.assertEqual(scores, sorted(scores, reverse=True))
 
@@ -69,16 +76,17 @@ class TestSmartSearch(unittest.TestCase):
     def test_empty_dataset_returns_empty_list(self):
         """Searching an empty dataset must return an empty list gracefully."""
         engine = SmartSearchEngine()
-        results = engine.search("servo", records=[])
+        results = engine.search("serial", records=[])
         self.assertEqual(results, [])
 
     def test_missing_or_corrupt_fields_handled(self):
         """Records with missing keys or None values must not cause exceptions."""
         dirty_records = [
-            {"id": 10, "title": None, "description": None, "category": None, "tags": None},
-            {"id": 11, "title": "Buzzer Melody"}  # missing description and tags
+            {"id": 10, "function_name": None, "category": None,
+             "syntax": None, "returns": None, "common_gotcha": None},
+            {"id": 11, "function_name": "tone"}   # most fields missing
         ]
-        results = self.engine.search("buzzer melody", records=dirty_records)
+        results = self.engine.search("tone", records=dirty_records)
         self.assertGreaterEqual(len(results), 1)
         self.assertEqual(results[0]["id"], 11)
 
@@ -91,20 +99,19 @@ class TestSmartSearch(unittest.TestCase):
         """Vectorizer and matrix should be cached if records are identical."""
         self.engine.fit(self.sample_records)
         initial_matrix = self.engine.tfidf_matrix
-        initial_hash = self.engine._dataset_hash
+        initial_hash   = self.engine._dataset_hash
 
-        # Fit again with the exact same records
+        # Fit again with the exact same records — should reuse
         self.engine.fit(self.sample_records)
         self.assertIs(self.engine.tfidf_matrix, initial_matrix)
         self.assertEqual(self.engine._dataset_hash, initial_hash)
 
     def test_convenience_function(self):
         """smart_search() helper function works as expected."""
-        results = smart_search("LED", records=self.sample_records, top_k=1)
+        results = smart_search("digital", records=self.sample_records, top_k=1)
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["id"], 1)
 
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
-

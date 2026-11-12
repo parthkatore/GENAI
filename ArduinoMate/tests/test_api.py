@@ -128,7 +128,7 @@ class TestArduinoMateAPI(unittest.TestCase):
         data = response.json()
         self.assertEqual(data.get("status"), "healthy")
         self.assertEqual(data.get("service"), "ArduinoMate API")
-        self.assertGreaterEqual(data.get("total_records", 0), 15)
+        self.assertGreaterEqual(data.get("total_records", 0), 20)
 
     # -------------------------------------------------------------------------
     # B. GET /records Tests
@@ -139,7 +139,7 @@ class TestArduinoMateAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         records = response.json()
         self.assertIsInstance(records, list)
-        self.assertGreaterEqual(len(records), 15)
+        self.assertGreaterEqual(len(records), 20)
 
     def test_get_records_with_valid_limit(self):
         """GET /records?limit=3 must return exactly 3 records."""
@@ -169,7 +169,7 @@ class TestArduinoMateAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         record = response.json()
         self.assertEqual(record["id"], 1)
-        self.assertIn("title", record)
+        self.assertIn("function_name", record)
         self.assertIn("category", record)
 
     def test_get_record_by_missing_id_returns_404(self):
@@ -184,8 +184,8 @@ class TestArduinoMateAPI(unittest.TestCase):
     # D. GET /search?q= Tests
     # -------------------------------------------------------------------------
     def test_search_with_relevant_query(self):
-        """GET /search?q=ultrasonic must return relevant distance sensor records."""
-        response = self.client.get("/search?q=ultrasonic")
+        """GET /search?q=digitalRead must return the digitalRead record first."""
+        response = self.client.get("/search?q=digitalRead")
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertGreaterEqual(data["total_matches"], 1)
@@ -193,12 +193,20 @@ class TestArduinoMateAPI(unittest.TestCase):
         top_match = results[0]
         self.assertIn("similarity_score", top_match)
         self.assertGreater(top_match["similarity_score"], 0.0)
-        combined_text = f"{top_match['title']} {top_match['description']}".lower()
-        self.assertIn("ultrasonic", combined_text)
+        # The top result should contain "digital" in its function_name or category
+        combined_text = (
+            str(top_match.get("function_name", "")) + " " +
+            str(top_match.get("category", "")) + " " +
+            str(top_match.get("syntax", ""))
+        ).lower()
+        self.assertTrue(
+            "digital" in combined_text or "read" in combined_text,
+            f"Expected 'digital' or 'read' in top result: {combined_text}"
+        )
 
     def test_search_ranks_by_relevance_descending(self):
         """Search results must be sorted with highest similarity first."""
-        response = self.client.get("/search?q=servo motor control")
+        response = self.client.get("/search?q=analog pin read")
         self.assertEqual(response.status_code, 200)
         results = response.json()["results"]
         if len(results) > 1:

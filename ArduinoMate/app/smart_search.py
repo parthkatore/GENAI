@@ -35,20 +35,27 @@ class SmartSearchEngine:
     def _extract_record_text(self, record: Dict[str, Any]) -> str:
         """
         Extract and combine all text fields into a single search document.
-        Handles missing keys, None values, and lists of tags.
+        Supports both the Arduino-function schema (function_name, syntax, returns,
+        common_gotcha) and the legacy project schema (title, description, tags).
         """
-        title = str(record.get("title", "") or "").strip()
-        description = str(record.get("description", "") or "").strip()
-        category = str(record.get("category", "") or "").strip()
-        tags = record.get("tags", [])
+        # Arduino function schema fields
+        function_name = str(record.get("function_name", "") or "").strip()
+        category      = str(record.get("category", "") or "").strip()
+        syntax        = str(record.get("syntax", "") or "").strip()
+        returns       = str(record.get("returns", "") or "").strip()
+        gotcha        = str(record.get("common_gotcha", "") or "").strip()
+        description   = str(record.get("description", "") or "").strip()
+
+        # Legacy project schema fields (kept for backward compatibility)
+        title   = str(record.get("title", "") or "").strip()
+        tags    = record.get("tags", [])
         if isinstance(tags, list):
             tags_text = " ".join(str(t) for t in tags if t)
         else:
             tags_text = str(tags or "").strip()
 
-        # Combine text fields with extra emphasis on title, category, and tags
-        combined_text = f"{title} {category} {tags_text} {description}"
-        return combined_text.strip()
+        combined = f"{function_name} {title} {category} {syntax} {returns} {gotcha} {description} {tags_text}"
+        return combined.strip()
 
     def _compute_hash(self, records: List[Dict[str, Any]]) -> str:
         """Compute an MD5 hash of the records list to detect dataset changes."""

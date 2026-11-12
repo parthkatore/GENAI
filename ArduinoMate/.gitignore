@@ -1,19 +1,46 @@
-# Byte-compiled / optimized / DLL files
+# Python byte-compiled / cache files
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
 
 # Virtual environments
+.venv/
 venv/
 env/
 ENV/
-.venv/
+.env
+
+# Secrets and local config
+.env.local
+*.secret
+secrets.py
 
 # Testing caches
 .pytest_cache/
 .coverage
 htmlcov/
+.tox/
 
-# Local runtime logs
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build / dist
+dist/
+build/
+*.egg-info/
+
+# Logs
 *.log
+logs/
 
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
