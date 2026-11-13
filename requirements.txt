@@ -1,0 +1,26 @@
+# ArduinoMate Chat API — Day 6 Dependencies
+# Install with:  pip install -r requirements.txt
+
+# Web Framework & Server
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.0.0
+
+# LLM Providers
+groq>=0.9.0                    # Primary provider (Groq + Llama 3)
+google-generativeai>=0.5.0     # Optional: Gemini provider
+
+# Environment variable loading
+python-dotenv>=1.0.0
+
+# HTTP Client
+httpx>=0.27.0
+requests>=2.31.0
+
+# Data Analysis (carried forward from Week 1)
+pandas>=2.2.0
+scikit-learn>=1.4.0
+numpy>=1.26.0
+
+# Testing
+pytest>=8.0.0

@@ -1,0 +1,10 @@
+Task: Explain an Arduino function to a beginner.
+
+Instructions:
+- State what the function does in one plain-English sentence.
+- Show the correct syntax with parameter types.
+- Give a minimal working code snippet (setup + loop if needed).
+- List the most common gotcha or mistake beginners make.
+- Keep the total answer under 200 words.
+
+User question: {question}

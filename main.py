@@ -1,64 +1,115 @@
+"""
+Day 6 — ArduinoMate Chat API (main.py)
+----------------------------------------
+FastAPI application integrating Groq/Gemini LLM with an ArduinoMate
+system prompt.  All previous product-demo code has been replaced with the
+real ArduinoMate endpoints.
 
-from fastapi import FastAPI
+Endpoints:
+    GET  /         - Welcome message
+    GET  /health   - Health check with active provider info
+    POST /chat     - LLM-powered Arduino Q&A (returns answer, confidence, follow_up)
+"""
+
+import os
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
-app = FastAPI()
+from schema import ChatRequest, ChatResponse
+from services import generate_response
+from app.llm import active_model, _get_provider
 
-# Product Model
-class Product(BaseModel):
-    id: int
-    name: str
-    price: float
-    rating: str
-    description: str
+load_dotenv()
 
+# ---------------------------------------------------------------------------
+# FastAPI app
+# ---------------------------------------------------------------------------
+app = FastAPI(
+    title="ArduinoMate Chat API",
+    description=(
+        "Day 6 — LLM-powered Arduino assistant. "
+        "Ask any Arduino question and get a structured answer with confidence "
+        "score and follow-up suggestion."
+    ),
+    version="2.0.0",
+)
 
-# CORS Configuration
+# ---------------------------------------------------------------------------
+# CORS — allow frontend dev server on 5500 and any localhost port
+# ---------------------------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5500"],
+    allow_origins=["http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# Product Records
-products = [
-    {"id": 1, "name": "Laptop", "price": 55000.0, "rating": "4.5/5", "description": "High-performance laptop for programming."},
-    {"id": 2, "name": "Smartphone", "price": 25000.0, "rating": "4.3/5", "description": "Smartphone with a powerful processor."},
-    {"id": 3, "name": "Headphones", "price": 1999.0, "rating": "4.2/5", "description": "Wireless headphones with noise cancellation."},
-    {"id": 4, "name": "Smart Watch", "price": 3500.0, "rating": "4.1/5", "description": "Smart watch with fitness tracking."},
-    {"id": 5, "name": "Keyboard", "price": 1200.0, "rating": "4.4/5", "description": "Mechanical keyboard for daily use."},
-    {"id": 6, "name": "Mouse", "price": 799.0, "rating": "4.0/5", "description": "Wireless optical mouse."},
-    {"id": 7, "name": "Monitor", "price": 15000.0, "rating": "4.6/5", "description": "24-inch Full HD monitor."},
-    {"id": 8, "name": "Bluetooth Speaker", "price": 2499.0, "rating": "4.3/5", "description": "Portable Bluetooth speaker."},
-    {"id": 9, "name": "Tablet", "price": 18000.0, "rating": "4.2/5", "description": "Lightweight tablet for studying."},
-    {"id": 10, "name": "Power Bank", "price": 1499.0, "rating": "4.1/5", "description": "10000mAh power bank with fast charging."}
-]
+# ---------------------------------------------------------------------------
+# Routes
+# ---------------------------------------------------------------------------
 
-
-# Home Route
-@app.get("/")
+@app.get("/", tags=["System"], summary="Welcome")
 def home():
-    return {"message": "Welcome to Product API"}
+    """Return a welcome message."""
+    return {
+        "message":  "Welcome to ArduinoMate Chat API",
+        "version":  "2.0.0",
+        "docs":     "/docs",
+        "provider": _get_provider(),
+        "model":    active_model(),
+    }
 
 
-# Get All Products
-@app.get("/products")
-def get_products():
-    return products
+@app.get("/health", tags=["System"], summary="Health Check")
+def health():
+    """Check if the API is running and show the active LLM provider."""
+    return {
+        "status":   "healthy",
+        "service":  "ArduinoMate Chat API",
+        "version":  "2.0.0",
+        "provider": _get_provider(),
+        "model":    active_model(),
+    }
 
 
-# FILTER PRODUCTS BY PRICE RANGE
-@app.get("/products/price-range")
-def filter_products(min_price: float, max_price: float):
+@app.post(
+    "/chat",
+    tags=["Chat"],
+    status_code=status.HTTP_200_OK,
+    response_model=ChatResponse,
+    summary="Ask ArduinoMate a question",
+    description=(
+        "Send an Arduino question and receive a structured JSON response "
+        "with an answer, a confidence score (0–1), and a follow-up suggestion."
+    ),
+)
+def chat_endpoint(payload: ChatRequest) -> ChatResponse:
+    """
+    POST /chat — LLM-powered Arduino Q&A.
 
-    result = []
+    Request body:
+        message : The Arduino question (required).
+        task    : 'explain' (default) or 'debug'.
 
-    for prod in products:
-        if min_price <= prod["price"] <= max_price:
-            result.append(prod)
+    Response:
+        answer     : AI-generated answer.
+        confidence : Float 0.0–1.0.
+        follow_up  : Suggested next question.
+        model      : LLM model name.
+        status     : 'success' or 'error'.
+    """
+    result = generate_response(
+        message=payload.message,
+        task=payload.task or "explain",
+    )
 
-    return result
+    if result["status"] == "error":
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=result["answer"],
+        )
+
+    return ChatResponse(**result)

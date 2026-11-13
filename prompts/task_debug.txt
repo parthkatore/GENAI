@@ -1,0 +1,10 @@
+Task: Help a beginner debug an Arduino problem.
+
+Instructions:
+- Identify the most likely cause of the problem from the description.
+- Explain why that cause produces the symptom the user sees.
+- Provide a corrected code snippet if applicable.
+- Suggest one quick test the user can do to confirm the fix works.
+- Keep the total answer under 200 words.
+
+User problem description: {question}
