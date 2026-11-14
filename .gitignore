@@ -43,3 +43,6 @@ logs/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# ChromaDB persistent store (large binary index — rebuild locally)
+data/chroma_db/
