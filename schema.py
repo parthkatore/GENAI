@@ -69,3 +69,54 @@ class SemanticSearchResponse(BaseModel):
     query:         str               = Field(description="The original search query.")
     total_results: int               = Field(description="Number of hits returned.")
     results:       List[SemanticHit] = Field(description="Ranked list of matching chunks.")
+
+
+# ---------------------------------------------------------------------------
+# RAG schemas (Day 8)
+# ---------------------------------------------------------------------------
+class AskRequest(BaseModel):
+    """
+    Payload sent by the client to POST /ask.
+
+    Fields:
+        question   : The user's Arduino question (required).
+        top_k      : How many chunks to retrieve (default 5).
+        min_score  : Minimum cosine similarity threshold (default 0.20).
+    """
+    question: str = Field(
+        ...,
+        min_length=3,
+        max_length=2000,
+        description="The user's Arduino question.",
+        json_schema_extra={"example": "What does pinMode() do in Arduino?"},
+    )
+    top_k: int = Field(
+        default=5,
+        ge=1,
+        le=20,
+        description="Number of chunks to retrieve from the vector store.",
+    )
+    min_score: float = Field(
+        default=0.20,
+        ge=0.0,
+        le=1.0,
+        description="Minimum cosine similarity to include a chunk.",
+    )
+
+
+class RagCitation(BaseModel):
+    """One source reference attached to a RAG answer."""
+    title:  str   = Field(description="Arduino function name.")
+    source: str   = Field(description="Source file path.")
+    page:   int   = Field(description="Chunk / section index within the document.")
+    score:  float = Field(description="Cosine similarity score 0.0 – 1.0.")
+
+
+class AskResponse(BaseModel):
+    """Response returned by POST /ask."""
+    question:     str             = Field(description="The original question.")
+    answer:       str             = Field(description="RAG-grounded answer from the LLM.")
+    citations:    List[RagCitation] = Field(description="Source chunks used to generate the answer.")
+    model:        str             = Field(description="LLM model name used.")
+    retrieved:    int             = Field(description="Number of chunks retrieved.")
+    out_of_scope: bool            = Field(description="True when no relevant chunks were found.")

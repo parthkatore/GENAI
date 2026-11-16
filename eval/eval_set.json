@@ -1,0 +1,107 @@
+[
+  {
+    "id": "Q01",
+    "question": "What does pinMode() do and when must I call it?",
+    "expected_sources": ["pinMode"],
+    "expect_answer": true,
+    "notes": "Core Digital I/O function"
+  },
+  {
+    "id": "Q02",
+    "question": "How do I read a button press with digitalRead() using INPUT_PULLUP?",
+    "expected_sources": ["pinMode", "digitalRead"],
+    "expect_answer": true,
+    "notes": "INPUT_PULLUP avoids floating pin"
+  },
+  {
+    "id": "Q03",
+    "question": "What is the difference between delay() and millis() for timing?",
+    "expected_sources": ["delay", "millis"],
+    "expect_answer": true,
+    "notes": "Blocking vs non-blocking timing"
+  },
+  {
+    "id": "Q04",
+    "question": "How does analogWrite() produce a PWM signal on Arduino?",
+    "expected_sources": ["analogWrite"],
+    "expect_answer": true,
+    "notes": "PWM duty cycle 0-255"
+  },
+  {
+    "id": "Q05",
+    "question": "Why does analogRead() give fluctuating values on an unconnected pin?",
+    "expected_sources": ["analogRead"],
+    "expect_answer": true,
+    "notes": "Floating pin picks up EMI"
+  },
+  {
+    "id": "Q06",
+    "question": "Can ArduinoMate tell me how to connect an HC-SR04 ultrasonic sensor?",
+    "expected_sources": [],
+    "expect_answer": false,
+    "notes": "Out of scope — must say I don't know"
+  },
+  {
+    "id": "Q07",
+    "question": "How do I send data to the Serial Monitor and what baud rate should I use?",
+    "expected_sources": ["Serial.begin", "Serial.print"],
+    "expect_answer": true,
+    "notes": "9600 or 115200 baud"
+  },
+  {
+    "id": "Q08",
+    "question": "What is the common mistake with attachInterrupt() and volatile variables?",
+    "expected_sources": ["attachInterrupt"],
+    "expect_answer": true,
+    "notes": "Shared variables must be volatile"
+  },
+  {
+    "id": "Q09",
+    "question": "What is the difference between map() and constrain() for servo control?",
+    "expected_sources": ["map", "constrain"],
+    "expect_answer": true,
+    "notes": "map does not clamp; constrain clamps"
+  },
+  {
+    "id": "Q10",
+    "question": "How do I generate a random number and avoid the same sequence after reset?",
+    "expected_sources": ["random"],
+    "expect_answer": true,
+    "notes": "randomSeed(analogRead(A0)) trick"
+  },
+  {
+    "id": "Q11",
+    "question": "How do I turn an LED on and off with digitalWrite()?",
+    "expected_sources": ["digitalWrite", "pinMode"],
+    "expect_answer": true,
+    "notes": "HIGH/LOW digital output"
+  },
+  {
+    "id": "Q12",
+    "question": "What is the return value of analogRead() and what does it represent?",
+    "expected_sources": ["analogRead"],
+    "expect_answer": true,
+    "notes": "0-1023 representing 0-5V"
+  },
+  {
+    "id": "Q13",
+    "question": "Can ArduinoMate explain how to set up an I2C LCD display?",
+    "expected_sources": [],
+    "expect_answer": false,
+    "notes": "Out of scope — I2C libraries not in knowledge base"
+  },
+  {
+    "id": "Q14",
+    "question": "How do I use millis() to blink an LED without blocking my program?",
+    "expected_sources": ["millis"],
+    "expect_answer": true,
+    "notes": "Non-blocking blink pattern"
+  },
+  {
+    "id": "Q15",
+    "question": "What happens if I call delay() inside an interrupt service routine?",
+    "expected_sources": ["attachInterrupt", "delay"],
+    "expect_answer": true,
+    "notes": "delay() uses interrupts so it won't work inside ISR"
+  }
+]

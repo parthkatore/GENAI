@@ -1,14 +1,16 @@
 """
 ArduinoMate Chat API — main.py
 --------------------------------
-Day 6: POST /chat  — LLM-powered Arduino Q&A
+Day 6: POST /chat       — LLM-powered Arduino Q&A
 Day 7: GET  /search/semantic?q=  — ChromaDB semantic search
+Day 8: POST /ask        — RAG-grounded answer with citations
 
 Endpoints:
     GET  /                      Welcome + provider info
     GET  /health                Health check
     POST /chat                  LLM answer (answer, confidence, follow_up)
     GET  /search/semantic?q=    Vector-store semantic search over all docs
+    POST /ask                   RAG answer with citations
 """
 
 import os
@@ -18,7 +20,15 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from schema import ChatRequest, ChatResponse, SemanticSearchResponse, SemanticHit
+from schema import (
+    ChatRequest,
+    ChatResponse,
+    SemanticSearchResponse,
+    SemanticHit,
+    AskRequest,
+    AskResponse,
+    RagCitation,
+)
 from services import generate_response
 from app.llm import active_model, _get_provider
 
@@ -41,10 +51,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="ArduinoMate Chat API",
     description=(
-        "Day 7 — Semantic search over ArduinoMate docs (ChromaDB + sentence-transformers) "
-        "plus LLM-powered Q&A (Groq / Gemini)."
+        "Day 8 — RAG-powered Q&A with citations (POST /ask) "
+        "plus semantic search (GET /search/semantic) and LLM chat (POST /chat)."
     ),
-    version="3.0.0",
+    version="4.0.0",
     lifespan=lifespan,
 )
 
@@ -69,7 +79,7 @@ app.add_middleware(
 def home():
     return {
         "message":  "Welcome to ArduinoMate API",
-        "version":  "3.0.0",
+        "version":  "4.0.0",
         "docs":     "/docs",
         "provider": _get_provider(),
         "model":    active_model(),
@@ -86,7 +96,7 @@ def health():
     return {
         "status":        "healthy",
         "service":       "ArduinoMate API",
-        "version":       "3.0.0",
+        "version":       "4.0.0",
         "provider":      _get_provider(),
         "model":         active_model(),
         "indexed_chunks": count,
@@ -152,4 +162,36 @@ def semantic_search_endpoint(
         query=q,
         total_results=len(hits),
         results=[SemanticHit(**h) for h in hits],
+    )
+
+
+@app.post(
+    "/ask",
+    tags=["RAG"],
+    status_code=status.HTTP_200_OK,
+    response_model=AskResponse,
+    summary="RAG-grounded answer with citations",
+    description=(
+        "Retrieves the most relevant Arduino documentation chunks from ChromaDB, "
+        "injects them as context into the LLM prompt, and returns a grounded answer "
+        "with source citations. Replies 'I don't know' for out-of-scope questions "
+        "(e.g. HC-SR04 sensor wiring)."
+    ),
+)
+def ask_endpoint(payload: AskRequest) -> AskResponse:
+    from app.rag import rag_answer
+
+    result = rag_answer(
+        question=payload.question,
+        top_k=payload.top_k,
+        min_score=payload.min_score,
+    )
+
+    return AskResponse(
+        question=result.question,
+        answer=result.answer,
+        citations=[RagCitation(**c.to_dict()) for c in result.citations],
+        model=result.model,
+        retrieved=result.retrieved,
+        out_of_scope=result.out_of_scope,
     )
