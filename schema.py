@@ -120,3 +120,56 @@ class AskResponse(BaseModel):
     model:        str             = Field(description="LLM model name used.")
     retrieved:    int             = Field(description="Number of chunks retrieved.")
     out_of_scope: bool            = Field(description="True when no relevant chunks were found.")
+
+
+# ---------------------------------------------------------------------------
+# Agent schemas (Day 9)
+# ---------------------------------------------------------------------------
+class AgentRequest(BaseModel):
+    """
+    Payload sent by the client to POST /agent.
+
+    Fields:
+        message   : The user's question or request (required).
+        thread_id : Conversation thread ID for memory continuity (optional).
+        use_graph : If True use the LangGraph agent; False uses hand-written loop.
+        approved  : Pre-approval for the LangGraph approval gate (default True).
+    """
+    message: str = Field(
+        ...,
+        min_length=3,
+        max_length=2000,
+        description="The user's Arduino question or LED resistor request.",
+        json_schema_extra={"example": "What resistor do I need for a red LED on 5V at 20mA?"},
+    )
+    thread_id: Optional[str] = Field(
+        default="default",
+        description="Conversation thread ID for memory (LangGraph agent).",
+    )
+    use_graph: bool = Field(
+        default=True,
+        description="True = LangGraph agent (memory + approval); False = hand-written loop.",
+    )
+    approved: bool = Field(
+        default=True,
+        description="Pre-approval for the LangGraph tool-call gate.",
+    )
+
+
+class AgentStepOut(BaseModel):
+    """One step in the agent reasoning trace."""
+    step: int               = Field(description="Step number.")
+    type: str               = Field(description="'tool_call', 'observation', or 'final_answer'.")
+    tool: Optional[str]     = Field(default=None, description="Tool name (tool steps only).")
+    args: Optional[Any]     = Field(default=None, description="Tool arguments (tool_call only).")
+    result: Optional[str]   = Field(default=None, description="Tool output (observation only).")
+    answer: Optional[str]   = Field(default=None, description="Final answer text (final_answer only).")
+
+
+class AgentResponse(BaseModel):
+    """Response returned by POST /agent."""
+    answer:    str              = Field(description="The agent's final answer.")
+    steps:     List[AgentStepOut] = Field(description="Reasoning trace.")
+    model:     str              = Field(description="LLM model name.")
+    thread_id: str              = Field(description="Conversation thread ID.")
+    num_steps: int              = Field(description="Total steps taken.")

@@ -4,6 +4,7 @@ ArduinoMate Chat API — main.py
 Day 6: POST /chat       — LLM-powered Arduino Q&A
 Day 7: GET  /search/semantic?q=  — ChromaDB semantic search
 Day 8: POST /ask        — RAG-grounded answer with citations
+Day 9: POST /agent      — Tool-using agent (hand-written loop or LangGraph)
 
 Endpoints:
     GET  /                      Welcome + provider info
@@ -11,6 +12,7 @@ Endpoints:
     POST /chat                  LLM answer (answer, confidence, follow_up)
     GET  /search/semantic?q=    Vector-store semantic search over all docs
     POST /ask                   RAG answer with citations
+    POST /agent                 Agent with tools (rag_search + led_resistor_calculator)
 """
 
 import os
@@ -28,6 +30,9 @@ from schema import (
     AskRequest,
     AskResponse,
     RagCitation,
+    AgentRequest,
+    AgentResponse,
+    AgentStepOut,
 )
 from services import generate_response
 from app.llm import active_model, _get_provider
@@ -51,10 +56,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="ArduinoMate Chat API",
     description=(
-        "Day 8 — RAG-powered Q&A with citations (POST /ask) "
-        "plus semantic search (GET /search/semantic) and LLM chat (POST /chat)."
+        "Day 9 — Tool-using agent (POST /agent): hand-written ReAct loop + LangGraph "
+        "with memory and approval step. Also RAG /ask, semantic /search, and /chat."
     ),
-    version="4.0.0",
+    version="5.0.0",
     lifespan=lifespan,
 )
 
@@ -79,7 +84,7 @@ app.add_middleware(
 def home():
     return {
         "message":  "Welcome to ArduinoMate API",
-        "version":  "4.0.0",
+        "version":  "5.0.0",
         "docs":     "/docs",
         "provider": _get_provider(),
         "model":    active_model(),
@@ -96,7 +101,7 @@ def health():
     return {
         "status":        "healthy",
         "service":       "ArduinoMate API",
-        "version":       "4.0.0",
+        "version":       "5.0.0",
         "provider":      _get_provider(),
         "model":         active_model(),
         "indexed_chunks": count,
@@ -195,3 +200,50 @@ def ask_endpoint(payload: AskRequest) -> AskResponse:
         retrieved=result.retrieved,
         out_of_scope=result.out_of_scope,
     )
+
+
+@app.post(
+    "/agent",
+    tags=["Agent"],
+    status_code=status.HTTP_200_OK,
+    response_model=AgentResponse,
+    summary="Tool-using agent (ReAct loop or LangGraph)",
+    description=(
+        "Runs an agent that can call two tools: "
+        "`rag_search` (Arduino documentation Q&A) and "
+        "`led_resistor_calculator` (Ohm's law E12 resistor calculator). "
+        "Set `use_graph=true` (default) for the LangGraph agent with memory and "
+        "an approval gate. Set `use_graph=false` for the hand-written ReAct loop. "
+        "Pass the same `thread_id` across requests to continue a conversation."
+    ),
+)
+def agent_endpoint(payload: AgentRequest) -> AgentResponse:
+    if payload.use_graph:
+        from app.graph import run_graph
+        result = run_graph(
+            user_message=payload.message,
+            thread_id=payload.thread_id or "default",
+            approved=payload.approved,
+        )
+        steps = [AgentStepOut(**s) for s in result.steps]
+        return AgentResponse(
+            answer=result.answer,
+            steps=steps,
+            model=result.model,
+            thread_id=result.thread_id,
+            num_steps=len(steps),
+        )
+    else:
+        from app.agent_loop import run_agent
+        result = run_agent(
+            user_message=payload.message,
+            session_id=payload.thread_id or "default",
+        )
+        steps = [AgentStepOut(**s) for s in result.to_dict()["steps"]]
+        return AgentResponse(
+            answer=result.answer,
+            steps=steps,
+            model=result.model,
+            thread_id=payload.thread_id or "default",
+            num_steps=len(steps),
+        )

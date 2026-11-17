@@ -1,4 +1,4 @@
-# ArduinoMate Chat API — Day 7 Dependencies
+# ArduinoMate Chat API — Day 9 Dependencies
 # Install with:  pip install -r requirements.txt
 
 # Web Framework & Server
@@ -15,6 +15,11 @@ sentence-transformers>=2.6.0   # all-MiniLM-L6-v2 (384-dim)
 
 # Vector Store
 chromadb>=0.5.0                # Persistent HNSW index
+
+# Agent framework (Day 9)
+langgraph>=1.2.0               # LangGraph agent with memory + approval
+langchain-core>=1.4.0          # LangGraph dependency
+langchain-groq>=1.2.0          # Groq LLM for LangChain/LangGraph
 
 # Environment variable loading
 python-dotenv>=1.0.0
