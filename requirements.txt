@@ -1,4 +1,4 @@
-# ArduinoMate Chat API — Day 9 Dependencies
+# ArduinoMate Chat API — Day 10 Dependencies
 # Install with:  pip install -r requirements.txt
 
 # Web Framework & Server
@@ -32,6 +32,9 @@ requests>=2.31.0
 pandas>=2.2.0
 scikit-learn>=1.4.0
 numpy>=1.26.0
+
+# Streamlit UI (Day 10)
+streamlit>=1.35.0
 
 # Testing
 pytest>=8.0.0
