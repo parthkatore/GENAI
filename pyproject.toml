@@ -1,0 +1,40 @@
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+# Only lint the Day 6-10 source tree; skip old ArduinoMate/, venv/, __pycache__
+exclude = [
+    ".git",
+    "__pycache__",
+    "*.pyc",
+    "venv",
+    ".venv",
+    "ArduinoMate",        # Week-1 legacy code — separate lint scope
+    "GEN_AI",             # Day-1/2 scratch files
+    "data",
+    "docs",
+]
+
+[tool.ruff.lint]
+# E/W  : pycodestyle
+# F    : pyflakes
+# I    : isort
+# UP   : pyupgrade
+# BLE  : blind-except (allow in service/API layers with noqa)
+select = ["E", "W", "F", "I", "UP"]
+
+ignore = [
+    "E501",   # line too long — docstrings and SQL in prompts make this noisy
+    "UP007",  # use X | Y instead of Union — keep Optional for readability
+    "BLE001", # blind except — intentional in API boundary layers
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "ui"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

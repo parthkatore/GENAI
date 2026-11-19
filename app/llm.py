@@ -13,7 +13,7 @@ Where `messages` is the standard OpenAI-style list:
 """
 
 import os
-from typing import Optional
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -101,7 +101,7 @@ def _chat_gemini(
 # ---------------------------------------------------------------------------
 def chat(
     messages: list[dict],
-    model: Optional[str] = None,
+    model: str | None = None,
     temperature: float = 0.3,
 ) -> str:
     """

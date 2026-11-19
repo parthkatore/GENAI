@@ -477,7 +477,88 @@ Step 7: Run Streamlit
 bash
 streamlit run ui/app.py
 
-11. API Documentation
+16. Run with Docker
+
+ArduinoMate ships a multi-stage Dockerfile and a docker-compose.yml that start
+the FastAPI backend and the Streamlit UI with a single command.
+
+Prerequisites
+
+Install Docker Desktop (https://docs.docker.com/get-docker/).
+Copy .env.example to .env and add your GROQ_API_KEY.
+
+Step 1 — Copy environment file
+
+bash
+cp .env.example .env
+# Edit .env and set GROQ_API_KEY=your_key_here
+
+
+Step 2 — Build images and start services
+
+bash
+docker compose up --build
+
+
+Step 3 — Open in browser
+
+FastAPI docs  →  http://localhost:8000/docs
+Streamlit UI  →  http://localhost:8501
+
+Stop the containers
+
+bash
+docker compose down
+
+
+Run in the background
+
+bash
+docker compose up --build -d
+docker compose logs -f
+
+
+What docker compose starts
+
+Service  Port   Description
+api      8000   FastAPI backend (uvicorn)
+ui       8501   Streamlit chat UI
+
+The UI service waits for the API health check to pass before starting.
+ChromaDB index and HuggingFace model weights are stored in named Docker
+volumes so they survive container restarts.
+
+Volume           Mounted at
+chroma_data      /app/data/chroma_db
+hf_cache         /app/.hf_cache
+
+17. Testing
+
+ArduinoMate uses Pytest for automated testing.
+
+Run the full test suite (44 tests):
+
+bash
+pytest tests/ -v
+
+
+Run lint:
+
+bash
+ruff check .
+
+
+Test files:
+
+tests/test_records.py    — records.json schema and integrity (7 tests)
+tests/test_search.py     — chunking pipeline and mocked semantic search (8 tests)
+tests/test_api.py        — /health, /ask, /agent, /search/semantic endpoints (17 tests)
+tests/test_tools.py      — led_resistor_calculator, rag_search, call_tool (12 tests)
+
+The LLM and ChromaDB are stubbed with unittest.mock so no API key or
+running server is needed.
+
+
 
 ArduinoMate exposes REST API endpoints through FastAPI.
 

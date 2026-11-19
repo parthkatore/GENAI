@@ -47,7 +47,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from app.rag import rag_answer, OUT_OF_SCOPE_MARKER
+from app.rag import OUT_OF_SCOPE_MARKER, rag_answer  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Configuration pairs to compare

@@ -1,0 +1,111 @@
+version: "3.9"
+
+# ============================================================
+# ArduinoMate — docker compose up
+#
+# Services
+# --------
+#   api  : FastAPI backend  → http://localhost:8000
+#            Docs           → http://localhost:8000/docs
+#   ui   : Streamlit chat   → http://localhost:8501
+#
+# Usage
+# -----
+#   # Build images and start both services:
+#   docker compose up --build
+#
+#   # Run in background:
+#   docker compose up --build -d
+#
+#   # Stop and remove containers:
+#   docker compose down
+#
+#   # View logs:
+#   docker compose logs -f
+#
+# Environment
+# -----------
+#   Copy .env.example to .env and fill in GROQ_API_KEY before running.
+#   The .env file is bind-mounted (not baked into the image).
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # FastAPI backend
+  # ----------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: arduinomate-api:latest
+    container_name: arduinomate_api
+    command:
+      - uvicorn
+      - main:app
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Redirect HF cache to the named volume so the model is downloaded once
+      HF_HOME: /app/.hf_cache
+      HF_HUB_DISABLE_SYMLINKS_WARNING: "1"
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      # Persist ChromaDB index across container restarts
+      - chroma_data:/app/data/chroma_db
+      # Persist HuggingFace model weights across restarts
+      - hf_cache:/app/.hf_cache
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # ----------------------------------------------------------
+  # Streamlit UI
+  # ----------------------------------------------------------
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: arduinomate-ui:latest
+    container_name: arduinomate_ui
+    command:
+      - streamlit
+      - run
+      - ui/app.py
+      - --server.port=8501
+      - --server.address=0.0.0.0
+      - --server.headless=true
+      - --browser.gatherUsageStats=false
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      # Point the UI at the API service (Docker internal network)
+      ARDUINOMATE_API_URL: "http://api:8000"
+      PYTHONUNBUFFERED: "1"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+# ----------------------------------------------------------
+# Named volumes
+# ----------------------------------------------------------
+volumes:
+  chroma_data:
+    driver: local
+  hf_cache:
+    driver: local

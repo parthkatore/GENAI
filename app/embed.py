@@ -17,9 +17,10 @@ Public API
 """
 
 import os
-import numpy as np
 from dataclasses import dataclass
 from typing import Any
+
+import numpy as np
 
 # Redirect HF cache to D drive to avoid filling C:
 os.environ.setdefault("HF_HOME", "D:/hf_cache")

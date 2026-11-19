@@ -20,9 +20,6 @@ import os
 from pathlib import Path
 from typing import Any
 
-import numpy as np
-from typing import Optional
-
 # Redirect HF cache to D: drive
 os.environ.setdefault("HF_HOME", "D:/hf_cache")
 os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
@@ -31,7 +28,7 @@ import chromadb
 from chromadb.config import Settings
 
 from app.chunking import load_all_chunks
-from app.embed    import embed_texts
+from app.embed import embed_texts
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -43,8 +40,8 @@ COLLECTION_NAME = "arduinomate_docs"
 # ---------------------------------------------------------------------------
 # ChromaDB client (persistent)
 # ---------------------------------------------------------------------------
-_client:     Optional[chromadb.ClientAPI] = None
-_collection: Optional[chromadb.Collection] = None
+_client:     chromadb.ClientAPI | None = None
+_collection: chromadb.Collection | None = None
 
 
 def _get_client() -> chromadb.ClientAPI:

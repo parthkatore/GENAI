@@ -4,8 +4,9 @@ Day 6 / Day 7 — Pydantic Schemas for ArduinoMate Chat API
 Request and response models for POST /chat and GET /search/semantic.
 """
 
+from typing import Any
+
 from pydantic import BaseModel, Field
-from typing import Optional, List, Any
 
 
 # ---------------------------------------------------------------------------
@@ -26,7 +27,7 @@ class ChatRequest(BaseModel):
         description="The user's Arduino question or problem.",
         json_schema_extra={"example": "What does pinMode() do in Arduino?"},
     )
-    task: Optional[str] = Field(
+    task: str | None = Field(
         default="explain",
         description="'explain' for function explanations, 'debug' for debugging help.",
         json_schema_extra={"example": "explain"},
@@ -68,7 +69,7 @@ class SemanticSearchResponse(BaseModel):
     """Response returned by GET /search/semantic."""
     query:         str               = Field(description="The original search query.")
     total_results: int               = Field(description="Number of hits returned.")
-    results:       List[SemanticHit] = Field(description="Ranked list of matching chunks.")
+    results:       list[SemanticHit] = Field(description="Ranked list of matching chunks.")
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +117,7 @@ class AskResponse(BaseModel):
     """Response returned by POST /ask."""
     question:     str             = Field(description="The original question.")
     answer:       str             = Field(description="RAG-grounded answer from the LLM.")
-    citations:    List[RagCitation] = Field(description="Source chunks used to generate the answer.")
+    citations:    list[RagCitation] = Field(description="Source chunks used to generate the answer.")
     model:        str             = Field(description="LLM model name used.")
     retrieved:    int             = Field(description="Number of chunks retrieved.")
     out_of_scope: bool            = Field(description="True when no relevant chunks were found.")
@@ -142,7 +143,7 @@ class AgentRequest(BaseModel):
         description="The user's Arduino question or LED resistor request.",
         json_schema_extra={"example": "What resistor do I need for a red LED on 5V at 20mA?"},
     )
-    thread_id: Optional[str] = Field(
+    thread_id: str | None = Field(
         default="default",
         description="Conversation thread ID for memory (LangGraph agent).",
     )
@@ -160,16 +161,16 @@ class AgentStepOut(BaseModel):
     """One step in the agent reasoning trace."""
     step: int               = Field(description="Step number.")
     type: str               = Field(description="'tool_call', 'observation', or 'final_answer'.")
-    tool: Optional[str]     = Field(default=None, description="Tool name (tool steps only).")
-    args: Optional[Any]     = Field(default=None, description="Tool arguments (tool_call only).")
-    result: Optional[str]   = Field(default=None, description="Tool output (observation only).")
-    answer: Optional[str]   = Field(default=None, description="Final answer text (final_answer only).")
+    tool: str | None     = Field(default=None, description="Tool name (tool steps only).")
+    args: Any | None     = Field(default=None, description="Tool arguments (tool_call only).")
+    result: str | None   = Field(default=None, description="Tool output (observation only).")
+    answer: str | None   = Field(default=None, description="Final answer text (final_answer only).")
 
 
 class AgentResponse(BaseModel):
     """Response returned by POST /agent."""
     answer:    str              = Field(description="The agent's final answer.")
-    steps:     List[AgentStepOut] = Field(description="Reasoning trace.")
+    steps:     list[AgentStepOut] = Field(description="Reasoning trace.")
     model:     str              = Field(description="LLM model name.")
     thread_id: str              = Field(description="Conversation thread ID.")
     num_steps: int              = Field(description="Total steps taken.")

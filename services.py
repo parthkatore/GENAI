@@ -12,12 +12,11 @@ Responsibilities:
 """
 
 import json
-import os
 import re
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
-from app.llm import chat, active_model
+from app.llm import active_model, chat
 
 # ---------------------------------------------------------------------------
 # Prompt file paths
@@ -38,7 +37,7 @@ def _load_prompt(path: Path) -> str:
     return path.read_text(encoding="utf-8").strip()
 
 
-def _extract_json(raw: str) -> Dict[str, Any]:
+def _extract_json(raw: str) -> dict[str, Any]:
     """
     Extract the first JSON object from a raw LLM response string.
     Models sometimes wrap JSON in markdown code fences — this handles that.
@@ -68,7 +67,7 @@ def _extract_json(raw: str) -> Dict[str, Any]:
     }
 
 
-def generate_response(message: str, task: str = "explain") -> Dict[str, Any]:
+def generate_response(message: str, task: str = "explain") -> dict[str, Any]:
     """
     Generate an AI response for the given user message.
 

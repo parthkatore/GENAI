@@ -48,7 +48,7 @@ from ui.pin_map import extract_pins, render_pin_map  # noqa: E402
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-DEFAULT_API_URL = "http://127.0.0.1:8000"
+DEFAULT_API_URL = os.getenv("ARDUINOMATE_API_URL", "http://127.0.0.1:8000")
 FEEDBACK_FILE   = ROOT / "data" / "feedback.json"
 REQUEST_TIMEOUT = 60
 

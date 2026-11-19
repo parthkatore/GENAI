@@ -15,27 +15,26 @@ Endpoints:
     POST /agent                 Agent with tools (rag_search + led_resistor_calculator)
 """
 
-import os
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.llm import _get_provider, active_model
 from schema import (
-    ChatRequest,
-    ChatResponse,
-    SemanticSearchResponse,
-    SemanticHit,
-    AskRequest,
-    AskResponse,
-    RagCitation,
     AgentRequest,
     AgentResponse,
     AgentStepOut,
+    AskRequest,
+    AskResponse,
+    ChatRequest,
+    ChatResponse,
+    RagCitation,
+    SemanticHit,
+    SemanticSearchResponse,
 )
 from services import generate_response
-from app.llm import active_model, _get_provider
 
 load_dotenv()
 

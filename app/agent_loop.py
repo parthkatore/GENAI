@@ -24,7 +24,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from app.llm   import chat, active_model
+from app.llm import active_model, chat
 from app.tools import TOOLS, call_tool
 
 # ---------------------------------------------------------------------------

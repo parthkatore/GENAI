@@ -18,13 +18,12 @@ Public API
 
 from __future__ import annotations
 
-import os
 import json
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
-from app.llm import chat, active_model
+from app.llm import active_model, chat
 from app.vectorstore import query_collection
 
 # ---------------------------------------------------------------------------

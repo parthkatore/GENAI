@@ -47,15 +47,16 @@ from __future__ import annotations
 import json
 import os
 import re
-from dataclasses import dataclass, field
-from typing import Any, Literal
+from dataclasses import dataclass
+from typing import Any, Literal, TypedDict
 
-# LangGraph imports
-from langgraph.graph  import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 
-from app.llm   import chat, active_model
-from app.tools import TOOLS, call_tool
+# LangGraph imports
+from langgraph.graph import END, StateGraph
+
+from app.llm import active_model, chat
+from app.tools import call_tool
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -68,7 +69,7 @@ _AUTO_APPROVE = os.getenv("AUTO_APPROVE", "true").lower() != "false"
 # ---------------------------------------------------------------------------
 # State schema (plain dict — LangGraph uses TypedDict-style state)
 # ---------------------------------------------------------------------------
-from typing import TypedDict, Optional
+
 
 class AgentState(TypedDict, total=False):
     user_message:  str

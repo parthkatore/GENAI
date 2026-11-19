@@ -1,4 +1,5 @@
 import requests
+
 parameters = {
     "user": "shiva",
     "email": "shiva@example.com"

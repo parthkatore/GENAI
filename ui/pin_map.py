@@ -22,8 +22,6 @@ Power    : 5V, 3.3V, GND, VIN  (left column)
 from __future__ import annotations
 
 import re
-from typing import Set
-
 
 # ---------------------------------------------------------------------------
 # Pin registry
@@ -73,7 +71,7 @@ ALL_PINS = _DIGITAL_PINS + _ANALOG_PINS + _POWER_PINS
 # Pin extractor
 # ---------------------------------------------------------------------------
 
-def extract_pins(text: str) -> Set[str]:
+def extract_pins(text: str) -> set[str]:
     """
     Parse answer text and return a set of matching pin IDs.
 
@@ -85,7 +83,7 @@ def extract_pins(text: str) -> Set[str]:
 
     Returns a set like {"D13", "D3", "A0"}.
     """
-    found: Set[str] = set()
+    found: set[str] = set()
 
     upper = text.upper()
 
@@ -146,7 +144,7 @@ _COLOR_LABEL_ACT  = "#FFB300"
 # SVG renderer
 # ---------------------------------------------------------------------------
 
-def render_pin_map(active_pins: Set[str]) -> str:
+def render_pin_map(active_pins: set[str]) -> str:
     """
     Return an HTML string containing the Arduino Uno SVG pin diagram.
 
@@ -233,12 +231,12 @@ def render_pin_map(active_pins: Set[str]) -> str:
 
     # Header labels
     header = (
-        f'<text x="390" y="90" font-family="sans-serif" font-size="11" '
-        f'fill="#B0BEC5" text-anchor="middle" font-weight="bold">DIGITAL / PWM</text>'
-        f'<text x="390" y="463" font-family="sans-serif" font-size="11" '
-        f'fill="#B0BEC5" text-anchor="middle" font-weight="bold">ANALOG IN</text>'
-        f'<text x="90" y="90" font-family="sans-serif" font-size="11" '
-        f'fill="#B0BEC5" text-anchor="middle" font-weight="bold">POWER</text>'
+        '<text x="390" y="90" font-family="sans-serif" font-size="11" '
+        'fill="#B0BEC5" text-anchor="middle" font-weight="bold">DIGITAL / PWM</text>'
+        '<text x="390" y="463" font-family="sans-serif" font-size="11" '
+        'fill="#B0BEC5" text-anchor="middle" font-weight="bold">ANALOG IN</text>'
+        '<text x="90" y="90" font-family="sans-serif" font-size="11" '
+        'fill="#B0BEC5" text-anchor="middle" font-weight="bold">POWER</text>'
     )
 
     # Board outline
@@ -275,8 +273,8 @@ def render_pin_map(active_pins: Set[str]) -> str:
 
     # Divider line between digital and analog
     divider = (
-        f'<line x1="360" y1="460" x2="430" y2="460" '
-        f'stroke="#37474F" stroke-width="1" stroke-dasharray="4,2"/>'
+        '<line x1="360" y1="460" x2="430" y2="460" '
+        'stroke="#37474F" stroke-width="1" stroke-dasharray="4,2"/>'
     )
 
     pin_elements = "\n  ".join(pin_svgs)
