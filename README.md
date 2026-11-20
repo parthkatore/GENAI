@@ -1,5 +1,8 @@
-🤖 ArduinoMate – AI-Powered Arduino Learning Assistant
+﻿🤖 ArduinoMate – AI-Powered Arduino Learning Assistant
 
+
+[![CI](https://github.com/parthkatore/GENAI/actions/workflows/ci.yml/badge.svg)](https://github.com/parthkatore/GENAI/actions/workflows/ci.yml)
+[![Deploy](https://img.shields.io/badge/deploy-Render-46E3B7?logo=render)](https://arduinomate-api.onrender.com)
 <p align="center">
 <b>Your Personal AI Assistant for Learning Arduino Programming and Electronics.</b>
 </p>
