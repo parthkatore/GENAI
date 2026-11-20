@@ -1,0 +1,31 @@
+# ============================================================
+# ArduinoMate — Render deployment manifest
+# Deploy with:  Connect this repo in render.com → "Blueprint"
+#
+# Services
+# --------
+#   arduinomate-api  : FastAPI backend  (GET /health)
+# ============================================================
+services:
+  - type: web
+    name: arduinomate-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    # Pass the runtime stage explicitly
+    # (Render uses the final stage by default; this is explicit for clarity)
+    envVars:
+      - key: LLM_PROVIDER
+        value: groq
+      - key: GROQ_API_KEY
+        sync: false          # set in Render dashboard — never committed to git
+      - key: HF_HOME
+        value: /app/.hf_cache
+      - key: HF_HUB_DISABLE_SYMLINKS_WARNING
+        value: "1"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PORT
+        value: "8000"
+    healthCheckPath: /health
+    autoDeploy: true
