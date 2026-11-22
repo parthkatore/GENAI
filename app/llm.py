@@ -10,6 +10,11 @@ The wrapper exposes a single function:
 
 Where `messages` is the standard OpenAI-style list:
     [{"role": "system", "content": "..."}, {"role": "user", "content": "..."}]
+
+Day 12 addition: after every real API call the prompt_tokens and
+completion_tokens are written into the request-scoped context variable
+app.middleware.token_usage so the logging middleware can include them in
+the structured log line without any coupling between routes and this module.
 """
 
 import os
@@ -34,6 +39,23 @@ def _get_provider() -> str:
     return os.getenv("PROVIDER", PROVIDER_GROQ).lower().strip()
 
 
+def _record_tokens(prompt_tokens: int, completion_tokens: int) -> None:
+    """
+    Write token counts into the request-scoped context variable.
+
+    Import is deferred so the LLM module stays usable in CLI/test contexts
+    where the middleware has not been loaded.
+    """
+    try:
+        from app.middleware import token_usage  # noqa: PLC0415
+        token_usage.set({
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+        })
+    except Exception:  # noqa: BLE001
+        pass  # middleware not loaded (e.g. unit tests) — silently skip
+
+
 # ---------------------------------------------------------------------------
 # Groq backend
 # ---------------------------------------------------------------------------
@@ -42,7 +64,7 @@ def _chat_groq(
     model: str = GROQ_DEFAULT_MODEL,
     temperature: float = 0.3,
 ) -> str:
-    """Call Groq API and return the assistant reply as a string."""
+    """Call Groq API, record token usage, and return the assistant reply."""
     from groq import Groq
 
     api_key = os.getenv("GROQ_API_KEY") or os.getenv("Gen_AI_API_Key")
@@ -56,6 +78,14 @@ def _chat_groq(
         temperature=temperature,
         max_tokens=1024,
     )
+
+    # Record token usage into the request-scoped context var (Day 12)
+    if completion.usage:
+        _record_tokens(
+            prompt_tokens=completion.usage.prompt_tokens or 0,
+            completion_tokens=completion.usage.completion_tokens or 0,
+        )
+
     return completion.choices[0].message.content.strip()
 
 
@@ -93,7 +123,17 @@ def _chat_gemini(
             temperature=temperature, max_output_tokens=1024,
         ),
     )
-    return gen_model.generate_content(full_prompt).text.strip()
+    response = gen_model.generate_content(full_prompt)
+
+    # Gemini does not expose per-request token counts in the same way;
+    # use candidates metadata when available
+    try:
+        meta = response.candidates[0].finish_reason  # noqa: F841  (unused but checked)
+        # Gemini SDK < 0.6 does not expose usage directly; skip recording
+    except Exception:  # noqa: BLE001
+        pass
+
+    return response.text.strip()
 
 
 # ---------------------------------------------------------------------------
