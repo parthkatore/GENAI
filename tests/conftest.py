@@ -44,19 +44,13 @@ def _stub(name: str) -> MagicMock:
             mod = types.ModuleType(key)
             mod.__spec__ = None  # type: ignore[attr-defined]
             sys.modules[key] = mod  # type: ignore[assignment]
-    # Replace the leaf with a MagicMock so attribute access always works
     mock_mod = MagicMock(name=name)
     sys.modules[name] = mock_mod  # type: ignore[assignment]
     return mock_mod
 
 
-# Stub chromadb (and its sub-packages used in app/vectorstore.py)
-for _pkg in [
-    "chromadb",
-    "chromadb.config",
-    "chromadb.errors",
-    "chromadb.utils",
-]:
+# Stub chromadb
+for _pkg in ["chromadb", "chromadb.config", "chromadb.errors", "chromadb.utils"]:
     _stub(_pkg)
 
 # Stub sentence_transformers
@@ -75,8 +69,9 @@ for _pkg in [
 ]:
     _stub(_pkg)
 
+
 # ---------------------------------------------------------------------------
-# Fake LLM chat response
+# Fake LLM responses
 # ---------------------------------------------------------------------------
 FAKE_RAG_ANSWER = json.dumps({
     "answer": "pinMode(pin, mode) configures a digital pin as INPUT, OUTPUT, or INPUT_PULLUP.",
@@ -84,15 +79,6 @@ FAKE_RAG_ANSWER = json.dumps({
     "follow_up": "How do I use digitalRead() after setting pinMode?",
 })
 
-FAKE_CHAT_RESPONSE = json.dumps({
-    "answer": "Use digitalWrite(13, HIGH) to turn on the built-in LED.",
-    "confidence": 0.90,
-    "follow_up": "How do I add a delay between blinks?",
-})
-
-# ---------------------------------------------------------------------------
-# Mock hits returned by the stubbed vector store
-# ---------------------------------------------------------------------------
 MOCK_HITS = [
     {
         "title": "pinMode()",
@@ -110,40 +96,33 @@ MOCK_HITS = [
 # ---------------------------------------------------------------------------
 @pytest.fixture(scope="session")
 def fake_llm_patch():
-    """
-    Session-scoped patch that replaces app.llm.chat with a stub.
-    Returns the canned JSON string so no network call is made.
-    The same patch works for /chat, /ask, and /agent endpoints.
-    """
-    import app.llm  # noqa: F401 -- ensure module is loaded before patching
+    """Replace app.llm.chat with a stub — no Groq API key needed."""
+    import app.llm  # noqa: F401
     with patch("app.llm.chat", return_value=FAKE_RAG_ANSWER) as mock_chat:
         yield mock_chat
 
 
 # ---------------------------------------------------------------------------
-# Session fixture: FastAPI TestClient with fully-mocked dependencies
+# Session fixture: FastAPI TestClient
 # ---------------------------------------------------------------------------
 @pytest.fixture(scope="session")
 def api_client(fake_llm_patch):
     """
-    Session-scoped FastAPI TestClient.
-    LLM and ChromaDB are stubbed; no live server or API key is required.
-    The middleware (ProductionMiddleware) is loaded for real so that
-    test_production.py can verify injection blocking, caching, and headers.
+    Session-scoped TestClient.  All heavy deps and I/O are mocked.
+    ProductionMiddleware runs for real so test_production.py can verify
+    injection blocking, caching, and latency headers.
     """
     import app.rag  # noqa: F401
-    import app.vectorstore  # noqa: F401 -- load module so patch target exists
+    import app.vectorstore  # noqa: F401
 
     with (
         patch("app.vectorstore.query_collection", return_value=MOCK_HITS),
         patch("app.vectorstore.build_index", return_value=1),
-        # app.rag imports query_collection directly; patch its local reference too
         patch("app.rag.query_collection", return_value=MOCK_HITS),
     ):
-        # Import main AFTER all patches are in place
-        import importlib
-
-        import main as main_module
-        importlib.reload(main_module)          # pick up the Day 12 middleware
-        client = TestClient(main_module.app, raise_server_exceptions=False)
+        # Remove any previously cached import of main so the patches above
+        # are visible when main.py is imported fresh inside this context.
+        sys.modules.pop("main", None)
+        from main import app as fastapi_app  # noqa: PLC0415
+        client = TestClient(fastapi_app, raise_server_exceptions=False)
         yield client
