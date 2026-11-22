@@ -1,898 +1,345 @@
-﻿🤖 ArduinoMate – AI-Powered Arduino Learning Assistant
-
+﻿# ArduinoMate
 
 [![CI](https://github.com/parthkatore/GENAI/actions/workflows/ci.yml/badge.svg)](https://github.com/parthkatore/GENAI/actions/workflows/ci.yml)
 [![Deploy](https://img.shields.io/badge/deploy-Render-46E3B7?logo=render)](https://arduinomate-api.onrender.com)
-<p align="center">
-<b>Your Personal AI Assistant for Learning Arduino Programming and Electronics.</b>
-</p>
+[![Python](https://img.shields.io/badge/python-3.11+-blue?logo=python)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 
-1. Introduction
+**An AI-powered Arduino learning assistant. Ask questions in plain English; get grounded answers from official Arduino documentation — with citations, a resistor calculator, and a Streamlit chat interface.**
 
-ArduinoMate is an AI-powered learning assistant designed to help beginners, students, and electronics enthusiasts understand Arduino programming and hardware concepts.
+---
 
-Learning Arduino can be challenging because users need to understand programming functions, electronic components, pin configurations, board-specific features, and circuit connections.
+## The Problem
 
-ArduinoMate solves this problem by providing an intelligent assistant that answers Arduino-related questions using official Arduino documentation.
+Arduino beginners face a consistent set of blockers: they need answers about specific functions, but general-purpose AI tools hallucinate syntax, invent pin numbers, and give wrong answers about differences between boards like the Uno, Nano, and ESP32. Official documentation is accurate but hard to navigate for a beginner.
 
-Instead of depending entirely on general AI knowledge, ArduinoMate retrieves relevant information from its knowledge base and generates answers with supporting source citations.
+ArduinoMate solves this with **Retrieval-Augmented Generation (RAG)**: every answer is grounded in retrieved documentation chunks, every claim comes with a source citation, and out-of-scope questions get an honest "I don't know" rather than a fabricated answer.
 
-The system also includes an AI agent that can use tools such as Arduino documentation search and an LED resistor calculator.
+---
 
-2. Problem Statement
+## Architecture
 
-Arduino beginners commonly face these challenges:
-
-Difficulty understanding Arduino programming functions.
-Confusion about function syntax, parameters, and return values.
-Difficulty understanding digital and analog input/output.
-Confusion between Arduino Uno, Nano, and ESP32 capabilities.
-Time-consuming searches through technical documentation.
-Incorrect or incomplete answers from general-purpose AI tools.
-Difficulty calculating resistor values for LED circuits.
-Lack of beginner-friendly explanations with trusted references.
-Proposed Solution
-
-ArduinoMate provides a centralized AI-powered platform where users can ask questions in natural language and receive understandable answers based on official Arduino documentation.
-
-The system uses Retrieval-Augmented Generation (RAG), semantic search, and AI agents to provide relevant and source-supported information.
-
-3. Objectives
-
-The main objectives are:
-
-Build a structured Arduino documentation knowledge base.
-Collect and process Arduino programming reference documents.
-Develop keyword-based and semantic search.
-Implement an AI-powered question-answering system.
-Use RAG to generate answers grounded in retrieved documentation.
-Provide citations for technical answers.
-Develop an LED resistor calculator using Ohm's law.
-Build an AI agent that can select appropriate tools.
-Create an interactive Streamlit user interface.
-Support board-specific Arduino information.
-Evaluate answer quality and retrieval accuracy.
-Deploy the application as an accessible web service.
-4. Target Users
-
-ArduinoMate is designed for:
-
-Students learning Arduino programming.
-Engineering and diploma students.
-Beginners in embedded systems.
-IoT developers.
-Electronics hobbyists.
-Teachers and instructors.
-Developers working with Arduino-compatible boards.
-5. Key Features
-5.1 Arduino Documentation Knowledge Base
-
-ArduinoMate collects and processes official Arduino documentation.
-
-The initial knowledge base includes 20 Arduino language functions:
-
-Function	Category
-pinMode()	Digital I/O
-digitalRead()	Digital I/O
-digitalWrite()	Digital I/O
-analogRead()	Analog I/O
-analogWrite()	Analog I/O
-analogReference()	Analog I/O
-delay()	Time
-delayMicroseconds()	Time
-millis()	Time
-micros()	Time
-map()	Math
-constrain()	Math
-tone()	Advanced I/O
-noTone()	Advanced I/O
-pulseIn()	Advanced I/O
-Serial.begin()	Serial Communication
-Serial.print()	Serial Communication
-Serial.read()	Serial Communication
-attachInterrupt()	External Interrupts
-random()	Random Numbers
-
-Each documentation record contains:
-
-Function name.
-Category.
-Syntax.
-Return information.
-Common gotcha.
-Source URL.
-5.2 Intelligent Search
-
-Users can search Arduino functions using keywords.
-
-Examples:
-
-Search for digital input.
-Find PWM functions.
-Search for serial communication.
-Find functions related to timing.
-Search for analog input.
-
-ArduinoMate supports keyword-based search, TF-IDF ranking, and semantic search.
-
-5.3 AI Question Answering
-
-Users can ask Arduino questions in natural language.
-
-Example questions:
-
-What is the difference between digitalRead() and analogRead()?
-How does pinMode() work?
-Explain the millis() function.
-How can I control LED brightness?
-What is PWM in Arduino?
-How does Serial.begin() work?
-
-The system retrieves relevant documentation and uses an LLM to generate an understandable answer.
-
-5.4 Retrieval-Augmented Generation (RAG)
-
-ArduinoMate uses RAG to improve answer relevance and reduce unsupported responses.
-
-The RAG process:
-
-User enters a question.
-The question is converted into an embedding.
-Relevant documentation chunks are retrieved.
-Retrieved information is passed to the language model.
-The model generates an answer using the available context.
-Source citations are returned with the answer.
-5.5 LED Resistor Calculator
-
-ArduinoMate includes an AI agent tool called led_resistor_calculator.
-
-It calculates an appropriate resistor value using Ohm's law.
-
-Formula:
-
-𝑅
-=
-𝑉
-𝑠
-−
-𝑉
-𝑓
-𝐼
-
-Where:
-
-𝑅
- = Required resistance in ohms.
-𝑉
-𝑠
- = Supply voltage.
-𝑉
-𝑓
- = LED forward voltage.
-𝐼
- = LED current in amperes.
-
-Example:
-
-Supply voltage = 5V
-LED forward voltage = 2V
-LED current = 0.02A
-
-Calculation:
-
-𝑅
-=
-5
-−
-2
-0.02
-𝑅
-=
-150
- 
-Ω
-
-The selected resistor is 150Ω.
-
-The calculator rounds the calculated resistance up to the next standard E12 resistor value.
-
-5.6 Board-Specific Knowledge
-
-ArduinoMate considers hardware differences between Arduino-compatible boards.
-
-Board	Important considerations
-Arduino Uno	10-bit ADC and specific PWM pins
-Arduino Nano	Capabilities depend on the particular Nano variant
-ESP32	ADC resolution, PWM implementation, and voltage characteristics differ
-
-The system aims to provide board-specific explanations instead of assuming that every board behaves identically.
-
-5.7 Arduino Pin Map Visualization
-
-The Streamlit interface includes an interactive Arduino Uno pin map.
-
-It highlights pins mentioned in the generated answer:
-
-Digital pins.
-PWM pins marked with ~.
-Analog pins A0–A5.
-
-This feature helps beginners understand which pins are involved in a particular Arduino project.
-
-5.8 AI Agent
-
-ArduinoMate includes an AI agent that can select and execute different tools.
-
-Available tools:
-
-Arduino documentation search.
-LED resistor calculator.
-Board-specific information retrieval.
-
-The agent selects an appropriate tool based on the user's question and generates a final response using the tool results.
-
-6. System Architecture
-
-ArduinoMate follows a modular architecture that separates data collection, processing, retrieval, AI generation, and user interaction.
-
-High-Level Architecture
-mermaid
+```mermaid
 flowchart TD
-    A[User] --> B[Streamlit Interface]
-    B --> C[FastAPI Backend]
+    U([User]) --> UI[Streamlit Chat UI\nui/app.py :8501]
+    U --> SW[Swagger Docs\n/docs :8000]
 
-    C --> D[Question Processing]
-    D --> E[Embedding Model]
-    E --> F[Chroma Vector Database]
+    UI -->|POST /ask\nPOST /agent\nGET /search/semantic| MW
 
-    F --> G[Relevant Documentation]
-    G --> H[LLM Provider]
+    subgraph API ["FastAPI Backend  (main.py :8000)"]
+        MW[ProductionMiddleware\nlatency · cache · injection guard]
+        MW --> R[Routes\n/chat  /ask  /agent  /search/semantic]
+    end
 
-    H --> I[Answer with Citations]
-    I --> B
+    R -->|question| RAG[app/rag.py\nrag_answer]
+    R -->|message| AGT[app/agent_loop.py + graph.py\nReAct loop / LangGraph]
+    R -->|query| VS[app/vectorstore.py\nChromaDB HNSW]
 
-    C --> J[AI Agent]
-    J --> K[RAG Search Tool]
-    J --> L[LED Resistor Calculator]
+    RAG --> EMB[app/embed.py\nall-MiniLM-L6-v2\n384-dim embeddings]
+    AGT --> TOOLS[app/tools.py\nrag_search\nled_resistor_calculator]
+    TOOLS --> RAG
 
-    K --> F
-    J --> H
+    EMB --> VS
+    VS -->|top-k chunks| RAG
+    RAG -->|context + question| LLM[app/llm.py\nGroq  qwen/qwen3.8-27b\nor Gemini 1.5 Flash]
+    LLM -->|answer + confidence| RAG
 
-RAG Architecture
-mermaid
-flowchart LR
-    A[Arduino Documentation] --> B[Data Ingestion]
-    B --> C[Data Cleaning]
-    C --> D[Document Chunking]
-    D --> E[Embedding Generation]
-    E --> F[Chroma Vector Store]
+    subgraph Data ["Knowledge Base"]
+        RJ[data/records.json\n20 Arduino functions\nwith gotchas]
+        AD[data/raw/*.adoc\n10 official reference files]
+    end
 
-    G[User Question] --> H[Question Embedding]
-    H --> I[Semantic Retrieval]
-    F --> I
+    RJ --> EMB
+    AD --> EMB
+```
 
-    I --> J[Context Assembly]
-    J --> K[Language Model]
-    K --> L[Answer with Citations]
+---
 
-Data Flow
-Arduino documentation is downloaded.
-The ingestion module extracts useful information.
-Data is cleaned and structured.
-Documents are divided into meaningful chunks.
-Embeddings are generated.
-Chunks are stored in ChromaDB.
-User questions are converted into embeddings.
-Relevant chunks are retrieved.
-Retrieved context is provided to the LLM.
-The final answer is returned with citations.
-7. Technology Stack
-Technology	Purpose
-Python	Main programming language
-FastAPI	REST API backend
-Streamlit	Interactive frontend
-Requests	Documentation downloading
-Pandas	Data analysis
-Pydantic	Data validation
-ChromaDB	Vector database
-TF-IDF	Keyword-based intelligent search
-Cosine Similarity	Similarity calculation
-Embeddings	Semantic search
-Groq / Gemini	Language model provider
-Pytest	Automated testing
-Ruff	Python linting
-Git	Version control
-GitHub	Source code management
-Docker	Application containerization
-GitHub Actions	Continuous integration
-8. Data Sources
+## Results
 
-ArduinoMate uses official Arduino documentation as its primary knowledge source.
+### RAG evaluation — 15 questions, two configurations
 
-Source 1: Arduino Language Reference
+| Metric | Config A (chunk=300, top_k=3) | Config B (chunk=500, top_k=5) |
+|--------|-------------------------------|-------------------------------|
+| Answer rate (13 in-scope Qs) | 85% | **100%** |
+| Refusal rate (2 out-of-scope Qs) | **100%** | **100%** |
+| Source hit rate | 92% | **100%** |
+| Avg chunks retrieved | 3.0 | 5.0 |
+| Avg latency | **4.4 s** | 8.3 s |
+| Composite score | 0.912 | **1.000** |
 
-https://github.com/arduino/reference-en
+Config B wins on every accuracy metric. Config A's lower latency is not worth the missed answers on multi-function questions like `millis()` + `attachInterrupt()`.
 
-Source 2: Arduino Digital Read Documentation
+### Semantic search — 10 manual queries
 
-https://raw.githubusercontent.com/arduino/reference-en/master/Language/Functions/Digital%20IO/digitalRead.adoc
+| Query | Top hit | Score | Correct? |
+|-------|---------|-------|----------|
+| `pinMode` | pinMode() | 0.361 | Yes |
+| `digitalRead button INPUT_PULLUP` | pinMode (INPUT_PULLUP) | 0.757 | Yes |
+| `delay vs millis non-blocking` | attachInterrupt (mentions both) | 0.785 | Yes |
+| `PWM analogWrite duty cycle` | analogWrite() | 0.793 | Yes |
+| `analogRead floating pin noise` | analogRead() notes | **0.819** | Yes |
+| `HC-SR04 ultrasonic` *(out-of-scope)* | pulseIn (low score) | 0.422 | Yes — correctly low |
+| `serial monitor baud rate` | Serial.begin() | **0.848** | Yes |
+| `attachInterrupt ISR volatile` | attachInterrupt | 0.754 | Yes |
+| `map constrain servo` | map gotcha chunk | 0.804 | Yes |
+| `random number seed` | random gotcha chunk | 0.805 | Yes |
 
-Data Collection and Processing
+**10/10 correct top hits. Average score: 0.754. Chunks indexed: 109.**
 
-The documentation is downloaded into:
+### Prompt engineering — Version B vs generic prompt
 
-data/raw/
+| Question | Generic prompt (V-A) | ArduinoMate prompt (V-B) |
+|----------|---------------------|--------------------------|
+| Structured JSON output | Never | Always |
+| Gotcha coverage | 0 / 10 | 10 / 10 |
+| Out-of-scope refusal | Hallucinated | Honest refusal |
+| Average score | 10.4 / 25 | 23.0 / 25 |
+| **Total (10 questions)** | **104 / 250** | **230 / 250** |
 
-The ingestion module processes the downloaded documents and extracts:
+---
 
-Function name.
-Category.
-Syntax.
-Return information.
-Common gotcha.
-Source URL.
+## Features
 
-The cleaned data is stored in:
+| Feature | Description |
+|---------|-------------|
+| **RAG Q&A** | `POST /ask` — retrieves relevant chunks, generates a grounded answer, returns citations |
+| **Semantic search** | `GET /search/semantic?q=` — ChromaDB HNSW cosine search over 109 chunks |
+| **AI agent** | `POST /agent` — ReAct loop or LangGraph agent with memory and tool approval |
+| **LED resistor calculator** | Ohm's law + E12 rounding: `R = (Vs - Vf) / I` |
+| **Streamlit UI** | Chat interface with citations, thumbs feedback, agent trace, and Arduino Uno pin map |
+| **Production hardening** | Latency + token logging, in-memory LRU cache (60 s TTL), 16 KB body limit, prompt-injection guard |
+| **CI/CD** | GitHub Actions: ruff lint + 70 pytest tests + Docker build on every push |
 
-data/records.json
+---
 
-Source URLs are preserved to support traceability and citations.
+## Quick Start
 
-9. Project Folder Structure
-text
-sanjivani-sj-61-arduinomate/
-│
+```bash
+# 1. Clone
+git clone https://github.com/parthkatore/GENAI.git
+cd GENAI
+
+# 2. Environment
+cp .env.example .env
+# Edit .env — set GROQ_API_KEY=your_key_here
+
+# 3. Install
+pip install -r requirements.txt
+
+# 4. Run API
+uvicorn main:app --reload
+# API docs at http://localhost:8000/docs
+
+# 5. Run UI (separate terminal)
+streamlit run ui/app.py
+# Chat at http://localhost:8501
+```
+
+### Run with Docker
+
+```bash
+docker compose up --build
+# API  → http://localhost:8000/docs
+# UI   → http://localhost:8501
+```
+
+---
+
+## API Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Liveness check; returns cache stats and indexed chunk count |
+| `GET` | `/` | Welcome, version, active provider |
+| `POST` | `/chat` | Direct LLM answer (no retrieval) |
+| `GET` | `/search/semantic?q=` | Semantic search over documentation chunks |
+| `POST` | `/ask` | RAG-grounded answer with citations |
+| `POST` | `/agent` | Tool-using agent (rag_search + LED calculator) |
+
+**Health response (Day 12):**
+```json
+{
+  "status": "healthy",
+  "version": "6.0.0",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "indexed_chunks": 109,
+  "cache_size": 3,
+  "cache_hits": 12,
+  "cache_misses": 7
+}
+```
+
+**RAG answer (POST /ask):**
+```json
+{
+  "question": "What does pinMode() do in Arduino?",
+  "answer": "pinMode(pin, mode) configures a digital pin as INPUT, OUTPUT, or INPUT_PULLUP...",
+  "citations": [
+    { "title": "pinMode()", "source": "data/raw/pinMode.adoc", "page": 1, "score": 0.812 }
+  ],
+  "model": "qwen/qwen3.8-27b",
+  "retrieved": 5,
+  "out_of_scope": false
+}
+```
+
+---
+
+## Production Notes
+
+The middleware in `app/middleware.py` adds four hardening layers with zero external dependencies:
+
+### Latency and token logging
+
+Every request emits one structured log line:
+
+```
+2026-11-19T14:32:11  INFO  arduinomate  POST /ask  200  847ms  tokens=in:312/out:184
+```
+
+The token counts come from the Groq `usage` object written into a `contextvars.ContextVar` by `app/llm.py` after each API call, then read by the middleware after the response is built. No shared state between requests.
+
+Observed timings from the Day 8 evaluation run (Groq, `qwen/qwen3.8-27b`):
+
+| Operation | Typical latency |
+|-----------|----------------|
+| Embedding query (all-MiniLM-L6-v2) | ~20 ms |
+| ChromaDB HNSW search (109 chunks) | ~5 ms |
+| Groq LLM completion (1 024 max tokens) | 700 ms – 13 s |
+| End-to-end `POST /ask` | **~8 s average** |
+
+Token usage per RAG request (Config B, 5 chunks):
+
+| Tokens | Typical value |
+|--------|--------------|
+| Prompt tokens | 280 – 420 |
+| Completion tokens | 150 – 250 |
+| Cost (Groq free tier) | $0 |
+
+### Response cache
+
+An in-memory LRU dict (256 entries, 60 s TTL) caches identical `(method, full-URL, body-hash)` tuples. Only 2xx responses under 32 KB are stored. Repeated identical questions return in under 5 ms with the header `X-Cache: HIT`.
+
+```
+GET /health        first call:  X-Cache: MISS  12ms
+GET /health        second call: X-Cache: HIT   1ms
+```
+
+The cache is a single dict protected by `threading.Lock` — correct for Uvicorn's single-worker default. Under multi-worker load, replace it with Redis using the same interface.
+
+### Input limits
+
+POST bodies over **16 KB** are rejected before the route handler runs:
+
+```json
+HTTP 413
+{ "detail": "Request body too large: 20000 bytes. Maximum allowed is 16384 bytes (16 KB)." }
+```
+
+This prevents prompt-stuffing and runaway token bills. The Pydantic `max_length=2000` on the question field provides a second layer for JSON-parsed inputs.
+
+### Prompt-injection guard
+
+Requests containing known instruction-override phrases are blocked with 400 and logged:
+
+```
+WARN  arduinomate  400 INJECTION  POST /ask  pattern='ignore previous instructions'  ip=127.0.0.1
+```
+
+The scanner checks 20 lowercase substrings (see `app/middleware.py`). It is intentionally conservative — it blocks known attack phrases without semantic analysis. The system prompt also treats retrieved documents as untrusted data and does not allow them to override instructions.
+
+---
+
+## Testing
+
+```bash
+# Run all 70 tests (no API key, no network, no GPU required)
+pytest tests/ -v
+
+# Lint
+ruff check .
+```
+
+| Test file | Tests | What is covered |
+|-----------|-------|-----------------|
+| `test_records.py` | 7 | records.json schema, uniqueness, categories |
+| `test_search.py` | 8 | chunking pipeline, mocked semantic search |
+| `test_api.py` | 17 | `/health`, `/ask`, `/agent`, `/search/semantic` endpoints |
+| `test_tools.py` | 12 | `led_resistor_calculator`, `rag_search`, `call_tool` dispatcher |
+| `test_production.py` | 26 | input limits (413), injection blocking (400), cache headers, latency headers |
+| **Total** | **70** | |
+
+---
+
+## Repository Structure
+
+```
+GENAI/
 ├── app/
-│   ├── __init__.py
-│   ├── main.py
-│   ├── models.py
-│   ├── records.py
-│   ├── cli.py
-│   ├── ingest.py
-│   ├── fetch.py
-│   ├── llm.py
-│   ├── chunking.py
-│   ├── embed.py
-│   ├── vectorstore.py
-│   ├── smart_search.py
-│   ├── rag.py
-│   ├── tools.py
-│   ├── agent_loop.py
-│   └── graph.py
-│
-├── data/
-│   ├── raw/
-│   ├── records.json
-│   └── sample_records.py
-│
-├── prompts/
-│   ├── system.txt
-│   ├── question_answering.txt
-│   └── summarization.txt
-│
-├── eval/
-│   ├── eval_set.json
-│   ├── run_eval.py
-│   ├── search_results.md
-│   └── prompt_compare.md
-│
-├── analysis/
-│   └── explore.py
-│
-├── ui/
-│   └── app.py
-│
+│   ├── llm.py            LLM provider wrapper (Groq + Gemini) + token tracking
+│   ├── middleware.py      Latency logging, cache, input limits, injection guard
+│   ├── rag.py             RAG pipeline: retrieve → augment → generate
+│   ├── vectorstore.py     ChromaDB HNSW vector store
+│   ├── embed.py           all-MiniLM-L6-v2 sentence embeddings
+│   ├── chunking.py        Semantic document chunking
+│   ├── tools.py           led_resistor_calculator, rag_search, call_tool
+│   ├── agent_loop.py      Hand-written ReAct loop
+│   └── graph.py           LangGraph agent with memory and approval gate
 ├── tests/
+│   ├── conftest.py        Shared fixtures, heavy-dep stubs
 │   ├── test_records.py
 │   ├── test_search.py
 │   ├── test_api.py
-│   ├── test_rag.py
-│   └── test_tools.py
-│
-├── docs/
-│   ├── how_llms_work.md
-│   ├── interview.md
-│   ├── resume.md
-│   └── screenshots/
-│
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-│
-├── .env.example
-├── .gitignore
-├── .dockerignore
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-├── README.md
-└── PROGRESS.md
-
-10. Installation and Setup
-Prerequisites
-
-Install the following:
-
-Python 3.11 or newer.
-Git.
-VS Code or another Python editor.
-Internet connection.
-API key for the selected LLM provider.
-Step 1: Clone the Repository
-bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/sanjivani-sj-61-arduinomate.git
-
-bash
-cd sanjivani-sj-61-arduinomate
-
-Step 2: Create Virtual Environment
-bash
-python -m venv .venv
-
-
-Activate the environment.
-
-Windows:
-
-bash
-.venv\Scripts\activate
-
-
-Linux / macOS:
-
-bash
-source .venv/bin/activate
-
-Step 3: Install Dependencies
-bash
-pip install -r requirements.txt
-
-Step 4: Configure Environment Variables
-
-Create a .env file in the project root.
-
-env
-LLM_PROVIDER=groq
-GROQ_API_KEY=your_groq_api_key
-GEMINI_API_KEY=your_gemini_api_key
-
-
-Never upload your actual API keys to GitHub.
-
-Step 5: Run FastAPI
-bash
-uvicorn app.main:app --reload
-
-
-The API runs at:
-
-http://127.0.0.1:8000
-
-Step 6: Open API Documentation
-
-Visit:
-
-http://127.0.0.1:8000/docs
-
-FastAPI provides interactive Swagger API documentation.
-
-Step 7: Run Streamlit
-bash
-streamlit run ui/app.py
-
-16. Run with Docker
-
-ArduinoMate ships a multi-stage Dockerfile and a docker-compose.yml that start
-the FastAPI backend and the Streamlit UI with a single command.
-
-Prerequisites
-
-Install Docker Desktop (https://docs.docker.com/get-docker/).
-Copy .env.example to .env and add your GROQ_API_KEY.
-
-Step 1 — Copy environment file
-
-bash
-cp .env.example .env
-# Edit .env and set GROQ_API_KEY=your_key_here
-
-
-Step 2 — Build images and start services
-
-bash
-docker compose up --build
-
-
-Step 3 — Open in browser
-
-FastAPI docs  →  http://localhost:8000/docs
-Streamlit UI  →  http://localhost:8501
-
-Stop the containers
-
-bash
-docker compose down
-
-
-Run in the background
-
-bash
-docker compose up --build -d
-docker compose logs -f
-
-
-What docker compose starts
-
-Service  Port   Description
-api      8000   FastAPI backend (uvicorn)
-ui       8501   Streamlit chat UI
-
-The UI service waits for the API health check to pass before starting.
-ChromaDB index and HuggingFace model weights are stored in named Docker
-volumes so they survive container restarts.
-
-Volume           Mounted at
-chroma_data      /app/data/chroma_db
-hf_cache         /app/.hf_cache
-
-17. Testing
-
-ArduinoMate uses Pytest for automated testing.
-
-Run the full test suite (44 tests):
-
-bash
-pytest tests/ -v
-
-
-Run lint:
-
-bash
-ruff check .
-
-
-Test files:
-
-tests/test_records.py    — records.json schema and integrity (7 tests)
-tests/test_search.py     — chunking pipeline and mocked semantic search (8 tests)
-tests/test_api.py        — /health, /ask, /agent, /search/semantic endpoints (17 tests)
-tests/test_tools.py      — led_resistor_calculator, rag_search, call_tool (12 tests)
-
-The LLM and ChromaDB are stubbed with unittest.mock so no API key or
-running server is needed.
-
-
-
-ArduinoMate exposes REST API endpoints through FastAPI.
-
-Method	Endpoint	Purpose
-GET	/health	Check API health
-GET	/records	Retrieve Arduino records
-GET	/records/{id}	Retrieve one record
-GET	/search?q=	Search Arduino records
-POST	/questions	Submit an Arduino question
-POST	/chat	Ask the LLM assistant
-GET	/search/semantic?q=	Perform semantic search
-POST	/ask	Get a RAG-based answer
-POST	/agent	Interact with the AI agent
-Health Check
-http
-GET /health
-
-
-Example response:
-
-json
-{
-  "status": "healthy"
-}
-
-Search Records
-http
-GET /search?q=digitalRead
-
-Ask ArduinoMate
-http
-POST /ask
-Content-Type: application/json
-
-
-Example request:
-
-json
-{
-  "question": "What is digitalRead in Arduino?",
-  "board": "Arduino Uno"
-}
-
-
-Example response structure:
-
-json
-{
-  "answer": "digitalRead() reads the state of a specified digital pin.",
-  "citations": [
-    {
-      "source": "Arduino Digital I/O Reference",
-      "url": "https://docs.arduino.cc/language-reference/en/functions/digital-io/digitalread/"
-    }
-  ]
-}
-
-
-Actual API response fields depend on the implemented backend.
-
-12. AI and RAG Implementation
-Why RAG?
-
-General-purpose language models may generate inaccurate Arduino information, especially when questions involve specific board capabilities or technical details.
-
-RAG improves answer relevance by retrieving documentation before generating an answer.
-
-RAG Components
-
-1. Document Fetching
-
-Downloads Arduino documentation using Python Requests with timeouts and error handling.
-
-2. Document Cleaning
-
-Extracts relevant information while removing unnecessary formatting.
-
-3. Document Chunking
-
-Splits documents into manageable sections while preserving code blocks, titles, and board-specific notes.
-
-4. Embedding Generation
-
-Converts documentation chunks into numerical vector representations.
-
-5. Vector Database
-
-Stores document embeddings and metadata in ChromaDB.
-
-6. Semantic Search
-
-Retrieves relevant documentation based on the meaning of a question.
-
-7. Answer Generation
-
-Uses retrieved context to generate an answer with source citations.
-
-Important Design Consideration
-
-Arduino documentation includes AsciiDoc files, code blocks, and board-specific tables.
-
-ArduinoMate aims to preserve complete code sketches and attach board-specific information to relevant chunks.
-
-This is important because Arduino Uno, Nano, and ESP32 do not necessarily have identical hardware capabilities.
-
-13. AI Agent Implementation
-
-ArduinoMate includes an AI agent capable of selecting and executing tools.
-
-Available Tools
-Tool	Purpose
-RAG Search	Searches Arduino documentation
-LED Resistor Calculator	Calculates an appropriate E12 resistor
-Board Context	Supports board-specific information retrieval
-Agent Workflow
-mermaid
-flowchart TD
-    A[User Question] --> B[AI Agent]
-    B --> C{Select Appropriate Tool}
-
-    C -->|Documentation Question| D[RAG Search]
-    C -->|LED Calculation| E[Resistor Calculator]
-
-    D --> F[Collect Tool Result]
-    E --> F
-
-    F --> G[Generate Final Answer]
-    G --> H[Return Answer to User]
-
-
-The agent should use approval controls for actions requiring confirmation and should not invent results when tools fail.
-
-14. Data Analysis and Evaluation
-
-ArduinoMate includes an evaluation process to measure data quality, retrieval performance, and answer reliability.
-
-Data Analysis
-
-The analysis/explore.py module uses Pandas to explore collected Arduino records.
-
-It reports:
-
-Total number of Arduino function records.
-Most common function category.
-Distribution of records by category.
-Search Evaluation
-
-The project evaluates:
-
-Keyword search.
-TF-IDF search.
-Semantic search.
-Different chunk sizes.
-Different retrieval top-k values.
-Evaluation Dataset
-
-The evaluation dataset contains Arduino questions, including questions that cannot be answered from the available knowledge base.
-
-An important test is the unknown-question test.
-
-If a question cannot be answered using retrieved documentation, ArduinoMate should respond:
-
-"I don't know based on the available Arduino documentation."
-
-This helps reduce unsupported answers.
-
-Evaluation Metrics
-Metric	Purpose
-Retrieval Accuracy	Measures relevance of retrieved records
-Precision@K	Measures relevant results among the top K
-Recall@K	Measures retrieval coverage
-Response Quality	Evaluates answer usefulness
-Citation Accuracy	Checks whether citations support answers
-Latency	Measures response time
-Token Usage	Measures LLM token consumption
-Evaluation Results
-
-Update this table with actual measurements after running the evaluation.
-
-Configuration	Chunk Size	Top K	Result
-Configuration A	To be measured	3	Pending
-Configuration B	To be measured	5	Pending
-15. Testing
-
-ArduinoMate uses Pytest for automated testing.
-
-Testing includes:
-
-Record loading.
-Record searching.
-Category counting.
-API health checks.
-Missing record handling.
-RAG question answering using a fake LLM.
-LED resistor calculations.
-AI agent tool execution.
-
-Run tests:
-
-bash
-pytest -v
-
-
-Run Ruff:
-
-bash
-ruff check .
-
-
-All required tests and lint checks should pass before merging code into the main branch.
-
-16. Docker Setup
-
-ArduinoMate can be containerized using Docker.
-
-Build and start the application:
-
-bash
-docker compose up --build
-
-
-Stop the containers:
-
-bash
-docker compose down
-
-
-The Docker configuration should start the FastAPI backend and Streamlit interface with the required dependencies and environment variables.
-
-17. Continuous Integration
-
-GitHub Actions automates code quality and testing.
-
-The CI workflow performs:
-
-Python dependency installation.
-Ruff linting.
-Pytest execution.
-Docker image building.
-
-Workflow location:
-
-.github/workflows/ci.yml
-
-Feature branches should be merged only after the required CI checks pass.
-
-18. Security and Production Considerations
-
-ArduinoMate includes the following production improvements:
-
-API key management through environment variables.
-.env excluded from Git.
-Request input validation.
-Input length limits.
-Error handling.
-Request latency logging.
-Token usage tracking.
-Response caching.
-Prompt-injection testing.
-Documentation source validation.
-Controlled tool execution.
-Prompt Injection Protection
-
-Retrieved documents and user inputs must be treated as untrusted content.
-
-The assistant should follow its system instructions and must not execute arbitrary instructions found inside retrieved documentation.
-
-19. Screenshots and Demo
-
-Add actual screenshots of the running application in this section.
-
-ArduinoMate User Interface
-
-!ArduinoMate UI
-
-Arduino Uno Pin Map
-
-!Arduino Uno Pin Map
-
-FastAPI Swagger Documentation
-
-!FastAPI Swagger
-
-RAG Answer with Citations
-
-!RAG Answer
-
-Demo Video
-
-Add the actual demonstration video link here:
-
-YOUR_DEMO_VIDEO_URL
-
-20. Development Roadmap
-Phase	Development Work
-Day 01	Python introduction, variables, f-strings and menu
-Week 1	Arduino records and documentation ingestion
-Week 2	FastAPI backend and data analysis
-Week 3	LLM integration and prompt engineering
-Week 4	Chunking, embeddings and vector database
-Week 5	RAG implementation and evaluation
-Week 6	AI agent and tools
-Week 7	Streamlit UI and Arduino pin map
-Week 8	Testing and Docker
-Week 9	CI/CD and deployment
-Week 10	Production improvements
-Final	Documentation and demo preparation
-21. Future Enhancements
-
-Possible future improvements include:
-
-Support for additional Arduino-compatible boards.
-Interactive circuit diagrams.
-Arduino code explanation.
-Arduino sketch debugging assistant.
-Circuit simulation integration.
-Additional electronics calculators.
-Voice-based Arduino assistance.
-Multilingual explanations.
-Personalized learning paths.
-Advanced board-specific documentation retrieval.
-22. Conclusion
-
-ArduinoMate aims to simplify Arduino programming and electronics learning through artificial intelligence.
-
-By combining official Arduino documentation, Retrieval-Augmented Generation, semantic search, and AI agents, the system provides a structured approach to answering technical questions.
-
-Its documentation knowledge base, LED resistor calculator, board-specific information, and interactive pin visualization make it a useful learning platform for students and electronics enthusiasts.
-
-The project demonstrates how Python, FastAPI, Streamlit, vector databases, and modern language models can be integrated to develop a practical AI-powered educational application.
-
-<p align="center">
-**ArduinoMate – Learn Arduino Smarter. Build Projects Better. 🚀**
-</p>
+│   ├── test_tools.py
+│   └── test_production.py Production hardening tests
+├── ui/
+│   ├── app.py             Streamlit chat UI
+│   └── pin_map.py         Arduino Uno interactive pin map
+├── data/
+│   ├── records.json       20 Arduino functions with gotchas
+│   └── raw/               10 official .adoc reference files
+├── prompts/               System, QA, and task prompt templates
+├── eval/                  15-question eval set and runner
+├── docs/                  Day-by-day implementation notes
+├── .github/workflows/     ci.yml (lint + test + docker)
+├── Dockerfile             Multi-stage build (builder + runtime)
+├── docker-compose.yml     api (8000) + ui (8501) services
+├── render.yaml            Render Blueprint for one-click deploy
+├── main.py                FastAPI application entry point
+├── schema.py              Pydantic request/response models
+├── services.py            Business logic for /chat endpoint
+└── requirements.txt
+```
+
+---
+
+## Demo
+
+> **Live API:** https://arduinomate-api.onrender.com/health
+>
+> **Demo video:** *(add link here after recording)*
+
+---
+
+## Technology Stack
+
+| Technology | Purpose |
+|-----------|---------|
+| Python 3.11 | Language |
+| FastAPI 0.110 | REST API backend |
+| Streamlit 1.35 | Chat UI |
+| ChromaDB 1.5 | Vector store (HNSW cosine index) |
+| sentence-transformers | all-MiniLM-L6-v2 embeddings (384-dim) |
+| Groq SDK | LLM inference (qwen/qwen3.8-27b) |
+| LangGraph | Agent with memory and approval gate |
+| pytest 9.2 | 70 automated tests |
+| ruff | Linter (E, W, F, I, UP rules) |
+| Docker | Multi-stage container image |
+| GitHub Actions | CI: lint + test + docker build |
+| Render | Cloud deployment |
+
+---
+
+*ArduinoMate — Learn Arduino Smarter. Build Projects Better.*

@@ -1,12 +1,12 @@
 """
-tests/conftest.py — Shared pytest fixtures for ArduinoMate Day 11/12 tests.
+tests/conftest.py -- Shared pytest fixtures for ArduinoMate Day 11/12 tests.
 
 Strategy
 --------
 Heavy optional deps (chromadb, sentence-transformers, langgraph, langchain*)
 are stubbed into sys.modules BEFORE any app module is imported.  This lets
 tests run in a plain Python 3.11 environment with only the packages listed
-in requirements.txt that are already available (fastapi, pydantic, groq …).
+in requirements.txt that are already available (fastapi, pydantic, groq ...).
 
 All LLM and vector-store calls are replaced with unittest.mock stubs so no
 API key, no network, and no GPU are required.
@@ -115,7 +115,7 @@ def fake_llm_patch():
     Returns the canned JSON string so no network call is made.
     The same patch works for /chat, /ask, and /agent endpoints.
     """
-    import app.llm  # noqa: F401 — ensure module is loaded before patching
+    import app.llm  # noqa: F401 -- ensure module is loaded before patching
     with patch("app.llm.chat", return_value=FAKE_RAG_ANSWER) as mock_chat:
         yield mock_chat
 
@@ -128,16 +128,22 @@ def api_client(fake_llm_patch):
     """
     Session-scoped FastAPI TestClient.
     LLM and ChromaDB are stubbed; no live server or API key is required.
+    The middleware (ProductionMiddleware) is loaded for real so that
+    test_production.py can verify injection blocking, caching, and headers.
     """
-    import app.vectorstore  # noqa: F401 — load module so patch target exists
-    import app.rag          # noqa: F401
+    import app.rag  # noqa: F401
+    import app.vectorstore  # noqa: F401 -- load module so patch target exists
 
     with (
         patch("app.vectorstore.query_collection", return_value=MOCK_HITS),
         patch("app.vectorstore.build_index", return_value=1),
-        # app.rag imports query_collection directly, so patch its local reference too
+        # app.rag imports query_collection directly; patch its local reference too
         patch("app.rag.query_collection", return_value=MOCK_HITS),
     ):
-        from main import app as fastapi_app  # import after patching
-        client = TestClient(fastapi_app, raise_server_exceptions=True)
+        # Import main AFTER all patches are in place
+        import importlib
+
+        import main as main_module
+        importlib.reload(main_module)          # pick up the Day 12 middleware
+        client = TestClient(main_module.app, raise_server_exceptions=False)
         yield client
