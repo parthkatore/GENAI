@@ -196,6 +196,14 @@ CI badge in README:
 [![CI](https://github.com/parthkatore/GENAI/actions/workflows/ci.yml/badge.svg)](...)
 ```
 
+**Docker Hub images** (pushed on every merge to `master`):
+- `parthkatore/arduinomate-api:latest`
+- `parthkatore/arduinomate-api:<git-sha>`
+
+To enable the push, add a `DOCKERHUB_TOKEN` secret in the repo:
+> GitHub repo → Settings → Secrets → Actions → New repository secret
+> Name: `DOCKERHUB_TOKEN`  Value: Docker Hub access token for `parthkatore`
+
 ---
 
 ## S1 — Tests

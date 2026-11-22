@@ -109,7 +109,7 @@ Config B wins on every accuracy metric. Config A's lower latency is not worth th
 | **LED resistor calculator** | Ohm's law + E12 rounding: `R = (Vs - Vf) / I` |
 | **Streamlit UI** | Chat interface with citations, thumbs feedback, agent trace, and Arduino Uno pin map |
 | **Production hardening** | Latency + token logging, in-memory LRU cache (60 s TTL), 16 KB body limit, prompt-injection guard |
-| **CI/CD** | GitHub Actions: ruff lint + 70 pytest tests + Docker build on every push |
+| **CI/CD** | GitHub Actions: ruff lint + 70 pytest tests + Docker build & push to `parthkatore/arduinomate-api` on every merge to `master` |
 
 ---
 
@@ -139,6 +139,10 @@ streamlit run ui/app.py
 ### Run with Docker
 
 ```bash
+# Pull from Docker Hub (no build needed)
+docker pull parthkatore/arduinomate-api:latest
+
+# Or build and run both services locally
 docker compose up --build
 # API  → http://localhost:8000/docs
 # UI   → http://localhost:8501

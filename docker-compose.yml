@@ -39,7 +39,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: runtime
-    image: arduinomate-api:latest
+    image: parthkatore/arduinomate-api:latest
     container_name: arduinomate_api
     command:
       - uvicorn
@@ -78,7 +78,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: runtime
-    image: arduinomate-ui:latest
+    image: parthkatore/arduinomate-ui:latest
     container_name: arduinomate_ui
     command:
       - streamlit
