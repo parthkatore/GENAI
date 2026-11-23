@@ -65,12 +65,23 @@ logging.config.dictConfig({
 
 
 # ---------------------------------------------------------------------------
-# Lifespan -- build vector index on startup (skip if already indexed)
+# Lifespan -- build vector index in a background thread so the port binds
+# immediately (Render's port scanner won't time out waiting for embeddings)
 # ---------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from app.vectorstore import build_index
-    build_index(force_rebuild=False)
+    import asyncio
+    import logging as _logging
+
+    _log = _logging.getLogger("arduinomate")
+
+    async def _build():
+        from app.vectorstore import build_index
+        _log.info("[startup] building vector index in background thread ...")
+        await asyncio.to_thread(build_index, False)
+        _log.info("[startup] vector index ready")
+
+    asyncio.create_task(_build())
     yield
 
 
