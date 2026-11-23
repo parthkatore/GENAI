@@ -1,18 +1,13 @@
 """
 app/embed.py — Embedding Engine
 ---------------------------------
-Generates dense vector embeddings for text using sentence-transformers
-(all-MiniLM-L6-v2, 384-dim).
-
-The HF model cache is redirected to D:/hf_cache to avoid filling the
-C: drive.  If the model is not cached yet it downloads automatically on
-first use (~90 MB).
+Generates dense vector embeddings through the Gemini API, avoiding a local
+transformer model and its memory overhead.
 
 Public API
 ----------
-    get_embedder()           -> SentenceTransformer (cached singleton)
-    embed_texts(texts)       -> np.ndarray  shape (N, 384)
-    embed_query(query)       -> np.ndarray  shape (384,)
+    embed_texts(texts)       -> np.ndarray  shape (N, 3072)
+    embed_query(query)       -> np.ndarray  shape (3072,)
     semantic_search(query, chunks, top_k) -> list[SearchResult]
 """
 
@@ -22,39 +17,69 @@ from typing import Any
 
 import numpy as np
 
-# Redirect HF cache to D drive to avoid filling C:
-os.environ.setdefault("HF_HOME", "D:/hf_cache")
-os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
-
-MODEL_NAME = "all-MiniLM-L6-v2"
-_embedder  = None   # module-level singleton
+EMBEDDING_MODEL = "gemini-embedding-001"
+EMBEDDING_DIMENSIONS = 3072
+EMBEDDING_BATCH_SIZE = 50
+_client: Any | None = None
 
 
-def get_embedder():
-    """Return the shared SentenceTransformer instance (lazy load)."""
-    global _embedder
-    if _embedder is None:
-        from sentence_transformers import SentenceTransformer
-        _embedder = SentenceTransformer(MODEL_NAME)
-    return _embedder
+def _get_client() -> Any:
+    """Return the shared Gemini API client, creating it on first use."""
+    global _client
+    if _client is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is required for document embeddings.")
+        from google import genai
+
+        _client = genai.Client(api_key=api_key)
+    return _client
 
 
-def embed_texts(texts: list[str]) -> np.ndarray:
+def embed_texts(
+    texts: list[str],
+    task_type: str = "RETRIEVAL_DOCUMENT",
+) -> np.ndarray:
     """
-    Embed a list of strings.
+    Embed strings in bounded API batches and return unit-normalised vectors.
 
     Args:
-        texts : List of strings to embed.
+        texts     : List of strings to embed.
+        task_type : Gemini embedding task type for documents or queries.
 
     Returns:
-        numpy array of shape (len(texts), 384), dtype float32.
+        numpy array of shape (len(texts), 3072), dtype float32.
     """
-    model = get_embedder()
-    vectors = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
-    # Normalise to unit length for cosine similarity via dot product
-    norms = np.linalg.norm(vectors, axis=1, keepdims=True)
+    if not texts:
+        return np.empty((0, EMBEDDING_DIMENSIONS), dtype=np.float32)
+
+    client = _get_client()
+    from google.genai import types
+
+    config = types.EmbedContentConfig(task_type=task_type)
+    vectors: list[list[float]] = []
+    for start in range(0, len(texts), EMBEDDING_BATCH_SIZE):
+        batch = texts[start : start + EMBEDDING_BATCH_SIZE]
+        response = client.models.embed_content(
+            model=EMBEDDING_MODEL,
+            contents=batch,
+            config=config,
+        )
+        embeddings = response.embeddings
+        if embeddings is None or len(embeddings) != len(batch):
+            raise RuntimeError("Gemini returned an unexpected number of embeddings.")
+        for embedding in embeddings:
+            if embedding.values is None or len(embedding.values) != EMBEDDING_DIMENSIONS:
+                raise ValueError(
+                    f"Gemini returned an embedding with an unexpected size; "
+                    f"expected {EMBEDDING_DIMENSIONS} dimensions."
+                )
+            vectors.append(embedding.values)
+
+    vectors_array = np.asarray(vectors, dtype=np.float32)
+    norms = np.linalg.norm(vectors_array, axis=1, keepdims=True)
     norms = np.where(norms == 0, 1, norms)
-    return (vectors / norms).astype(np.float32)
+    return (vectors_array / norms).astype(np.float32)
 
 
 def embed_query(query: str) -> np.ndarray:
@@ -62,9 +87,9 @@ def embed_query(query: str) -> np.ndarray:
     Embed a single query string.
 
     Returns:
-        numpy array of shape (384,), normalised.
+        numpy array of shape (3072,), normalised.
     """
-    return embed_texts([query])[0]
+    return embed_texts([query], task_type="RETRIEVAL_QUERY")[0]
 
 
 # ---------------------------------------------------------------------------
@@ -118,8 +143,8 @@ def semantic_search(
         return []
 
     texts       = [c.text for c in chunks]
-    doc_vecs    = embed_texts(texts)          # (N, 384)
-    query_vec   = embed_query(query)          # (384,)
+    doc_vecs    = embed_texts(texts)          # (N, 3072)
+    query_vec   = embed_query(query)          # (3072,)
 
     scores      = doc_vecs @ query_vec        # cosine sim (unit vectors)
 

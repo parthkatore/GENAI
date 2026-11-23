@@ -3,7 +3,7 @@ tests/conftest.py -- Shared pytest fixtures for ArduinoMate Day 11/12 tests.
 
 Strategy
 --------
-Heavy optional deps (chromadb, sentence-transformers, langgraph, langchain*)
+Heavy optional deps (chromadb, langgraph, langchain*)
 are stubbed into sys.modules BEFORE any app module is imported.  This lets
 tests run in a plain Python 3.11 environment with only the packages listed
 in requirements.txt that are already available (fastapi, pydantic, groq ...).
@@ -52,9 +52,6 @@ def _stub(name: str) -> MagicMock:
 # Stub chromadb
 for _pkg in ["chromadb", "chromadb.config", "chromadb.errors", "chromadb.utils"]:
     _stub(_pkg)
-
-# Stub sentence_transformers
-_stub("sentence_transformers")
 
 # Stub langgraph / langchain
 for _pkg in [

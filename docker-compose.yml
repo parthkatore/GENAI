@@ -53,15 +53,10 @@ services:
     env_file:
       - .env
     environment:
-      # Redirect HF cache to the named volume so the model is downloaded once
-      HF_HOME: /app/.hf_cache
-      HF_HUB_DISABLE_SYMLINKS_WARNING: "1"
       PYTHONUNBUFFERED: "1"
     volumes:
       # Persist ChromaDB index across container restarts
       - chroma_data:/app/data/chroma_db
-      # Persist HuggingFace model weights across restarts
-      - hf_cache:/app/.hf_cache
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
@@ -106,6 +101,4 @@ services:
 # ----------------------------------------------------------
 volumes:
   chroma_data:
-    driver: local
-  hf_cache:
     driver: local

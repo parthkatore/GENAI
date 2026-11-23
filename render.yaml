@@ -19,10 +19,8 @@ services:
         value: groq
       - key: GROQ_API_KEY
         sync: false          # set in Render dashboard — never committed to git
-      - key: HF_HOME
-        value: /app/.hf_cache
-      - key: HF_HUB_DISABLE_SYMLINKS_WARNING
-        value: "1"
+      - key: GEMINI_API_KEY
+        sync: false          # used for embeddings — set in Render dashboard
       - key: PYTHONUNBUFFERED
         value: "1"
       - key: PORT

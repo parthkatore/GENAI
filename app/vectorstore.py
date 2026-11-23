@@ -16,19 +16,14 @@ Public API
 GET /search/semantic?q=  calls query_collection() directly.
 """
 
-import os
 from pathlib import Path
 from typing import Any
-
-# Redirect HF cache to D: drive
-os.environ.setdefault("HF_HOME", "D:/hf_cache")
-os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 
 import chromadb
 from chromadb.config import Settings
 
 from app.chunking import load_all_chunks
-from app.embed import embed_texts
+from app.embed import EMBEDDING_DIMENSIONS, EMBEDDING_MODEL, embed_texts
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -36,6 +31,11 @@ from app.embed import embed_texts
 BASE_DIR   = Path(__file__).resolve().parent.parent
 CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
 COLLECTION_NAME = "arduinomate_docs"
+COLLECTION_METADATA = {
+    "hnsw:space": "cosine",
+    "embedding_model": EMBEDDING_MODEL,
+    "embedding_dimensions": EMBEDDING_DIMENSIONS,
+}
 
 # ---------------------------------------------------------------------------
 # ChromaDB client (persistent)
@@ -65,7 +65,7 @@ def get_collection() -> chromadb.Collection:
         client = _get_client()
         _collection = client.get_or_create_collection(
             name=COLLECTION_NAME,
-            metadata={"hnsw:space": "cosine"},
+            metadata=COLLECTION_METADATA,
         )
     return _collection
 
@@ -83,17 +83,24 @@ def build_index(force_rebuild: bool = False) -> int:
     Returns:
         Total number of chunks indexed.
     """
+    global _collection
     client = _get_client()
+    collection = get_collection()
 
     if force_rebuild:
-        try:
-            client.delete_collection(COLLECTION_NAME)
-        except Exception:
-            pass
-        global _collection
+        client.delete_collection(COLLECTION_NAME)
         _collection = None
-
-    collection = get_collection()
+        collection = get_collection()
+    elif collection.count() > 0:
+        metadata = collection.metadata or {}
+        if (
+            metadata.get("embedding_model") != EMBEDDING_MODEL
+            or metadata.get("embedding_dimensions") != EMBEDDING_DIMENSIONS
+        ):
+            print("[vectorstore] Existing index uses incompatible embeddings; rebuilding.")
+            client.delete_collection(COLLECTION_NAME)
+            _collection = None
+            collection = get_collection()
 
     # Skip if already indexed
     if not force_rebuild and collection.count() > 0:
@@ -108,7 +115,7 @@ def build_index(force_rebuild: bool = False) -> int:
     # Embed all chunks
     print(f"[vectorstore] Embedding {len(chunks)} chunks …")
     texts    = [c.text for c in chunks]
-    vectors  = embed_texts(texts)             # (N, 384) float32, unit-normalised
+    vectors  = embed_texts(texts)             # (N, 3072) float32, unit-normalised
 
     # ChromaDB add in batches of 100 (API limit)
     BATCH = 100

@@ -35,7 +35,7 @@ flowchart TD
     R -->|message| AGT[app/agent_loop.py + graph.py\nReAct loop / LangGraph]
     R -->|query| VS[app/vectorstore.py\nChromaDB HNSW]
 
-    RAG --> EMB[app/embed.py\nall-MiniLM-L6-v2\n384-dim embeddings]
+    RAG --> EMB[app/embed.py\nGemini Embedding API\n3072-dim vectors]
     AGT --> TOOLS[app/tools.py\nrag_search\nled_resistor_calculator]
     TOOLS --> RAG
 
@@ -122,7 +122,7 @@ cd GENAI
 
 # 2. Environment
 cp .env.example .env
-# Edit .env — set GROQ_API_KEY=your_key_here
+# Edit .env — set GROQ_API_KEY and GEMINI_API_KEY
 
 # 3. Install
 pip install -r requirements.txt
@@ -209,7 +209,7 @@ Observed timings from the Day 8 evaluation run (Groq, `qwen/qwen3.8-27b`):
 
 | Operation | Typical latency |
 |-----------|----------------|
-| Embedding query (all-MiniLM-L6-v2) | ~20 ms |
+| Embedding query (Gemini API) | Network latency; varies |
 | ChromaDB HNSW search (109 chunks) | ~5 ms |
 | Groq LLM completion (1 024 max tokens) | 700 ms – 13 s |
 | End-to-end `POST /ask` | **~8 s average** |
@@ -259,7 +259,7 @@ The scanner checks 20 lowercase substrings (see `app/middleware.py`). It is inte
 ## Testing
 
 ```bash
-# Run all 70 tests (no API key, no network, no GPU required)
+# Run all 74 tests (no API key, no network, no GPU required)
 pytest tests/ -v
 
 # Lint
@@ -286,7 +286,7 @@ GENAI/
 │   ├── middleware.py      Latency logging, cache, input limits, injection guard
 │   ├── rag.py             RAG pipeline: retrieve → augment → generate
 │   ├── vectorstore.py     ChromaDB HNSW vector store
-│   ├── embed.py           all-MiniLM-L6-v2 sentence embeddings
+│   ├── embed.py           Gemini API embeddings
 │   ├── chunking.py        Semantic document chunking
 │   ├── tools.py           led_resistor_calculator, rag_search, call_tool
 │   ├── agent_loop.py      Hand-written ReAct loop
@@ -335,10 +335,10 @@ GENAI/
 | FastAPI 0.110 | REST API backend |
 | Streamlit 1.35 | Chat UI |
 | ChromaDB 1.5 | Vector store (HNSW cosine index) |
-| sentence-transformers | all-MiniLM-L6-v2 embeddings (384-dim) |
+| Google Gen AI SDK | Gemini Embedding API (3072-dim vectors) |
 | Groq SDK | LLM inference (qwen/qwen3.8-27b) |
 | LangGraph | Agent with memory and approval gate |
-| pytest 9.2 | 70 automated tests |
+| pytest 9.2 | 74 automated tests |
 | ruff | Linter (E, W, F, I, UP rules) |
 | Docker | Multi-stage container image |
 | GitHub Actions | CI: lint + test + docker build |

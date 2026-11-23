@@ -9,7 +9,7 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /install
 
-# System build deps (needed by sentence-transformers / chromadb)
+# System build deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gcc \
         g++ \
@@ -19,13 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements first (layer-cached unless requirements change)
 COPY requirements.txt .
 
-# Install CPU-only torch first (skips ~3 GB of CUDA packages),
-# then everything else. pip sees torch as already satisfied.
 RUN pip install --upgrade pip --root-user-action=ignore \
  && pip install --prefix=/install --no-cache-dir --root-user-action=ignore \
-      torch --index-url https://download.pytorch.org/whl/cpu \
- && PYTHONPATH=/install/lib/python3.11/site-packages \
-    pip install --prefix=/install --no-cache-dir --root-user-action=ignore \
       -r requirements.txt
 
 
@@ -48,14 +43,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy application source
 COPY . .
 
-# Redirect HuggingFace model cache to a writable location inside the container
-ENV HF_HOME=/app/.hf_cache \
-    HF_HUB_DISABLE_SYMLINKS_WARNING=1 \
-    PYTHONUNBUFFERED=1 \
+# Application runtime settings
+ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 # Create writable dirs and set ownership
-RUN mkdir -p /app/.hf_cache /app/data/chroma_db /app/data \
+RUN mkdir -p /app/data/chroma_db /app/data \
  && chown -R arduinomate:arduinomate /app
 
 USER arduinomate

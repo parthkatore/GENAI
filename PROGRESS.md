@@ -23,7 +23,7 @@
 
 - 44 pytest tests across `test_records.py`, `test_search.py`, `test_api.py`, `test_tools.py`
 - Ruff lint clean
-- Multi-stage Dockerfile + docker-compose with named volumes for ChromaDB and HF cache
+- Multi-stage Dockerfile + docker-compose with a named ChromaDB volume
 
 ## Day 10 — Streamlit Chat UI
 
@@ -46,7 +46,7 @@
 
 ## Day 7 — Semantic Search
 
-- Semantic chunking, all-MiniLM-L6-v2 embeddings, ChromaDB vector store
+- Semantic chunking, Gemini API embeddings, ChromaDB vector store
 - `GET /search/semantic`
 
 ## Day 6 — LLM Integration
