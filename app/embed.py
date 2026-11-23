@@ -6,8 +6,8 @@ transformer model and its memory overhead.
 
 Public API
 ----------
-    embed_texts(texts)       -> np.ndarray  shape (N, 3072)
-    embed_query(query)       -> np.ndarray  shape (3072,)
+    embed_texts(texts)       -> np.ndarray  shape (N, 768)
+    embed_query(query)       -> np.ndarray  shape (768,)
     semantic_search(query, chunks, top_k) -> list[SearchResult]
 """
 
@@ -18,8 +18,8 @@ from typing import Any
 import numpy as np
 
 EMBEDDING_MODEL = "gemini-embedding-001"
-EMBEDDING_DIMENSIONS = 3072
-EMBEDDING_BATCH_SIZE = 50
+EMBEDDING_DIMENSIONS = 768
+EMBEDDING_BATCH_SIZE = 10
 _client: Any | None = None
 
 
@@ -48,7 +48,7 @@ def embed_texts(
         task_type : Gemini embedding task type for documents or queries.
 
     Returns:
-        numpy array of shape (len(texts), 3072), dtype float32.
+        numpy array of shape (len(texts), 768), dtype float32.
     """
     if not texts:
         return np.empty((0, EMBEDDING_DIMENSIONS), dtype=np.float32)
@@ -56,10 +56,15 @@ def embed_texts(
     client = _get_client()
     from google.genai import types
 
-    config = types.EmbedContentConfig(task_type=task_type)
+    config = types.EmbedContentConfig(
+        task_type=task_type,
+        output_dimensionality=EMBEDDING_DIMENSIONS,
+    )
     vectors: list[list[float]] = []
-    for start in range(0, len(texts), EMBEDDING_BATCH_SIZE):
+    batch_count = (len(texts) + EMBEDDING_BATCH_SIZE - 1) // EMBEDDING_BATCH_SIZE
+    for batch_number, start in enumerate(range(0, len(texts), EMBEDDING_BATCH_SIZE), start=1):
         batch = texts[start : start + EMBEDDING_BATCH_SIZE]
+        print(f"[embed] Gemini batch {batch_number}/{batch_count} ({len(batch)} texts)")
         response = client.models.embed_content(
             model=EMBEDDING_MODEL,
             contents=batch,
@@ -87,7 +92,7 @@ def embed_query(query: str) -> np.ndarray:
     Embed a single query string.
 
     Returns:
-        numpy array of shape (3072,), normalised.
+        numpy array of shape (768,), normalised.
     """
     return embed_texts([query], task_type="RETRIEVAL_QUERY")[0]
 
@@ -143,8 +148,8 @@ def semantic_search(
         return []
 
     texts       = [c.text for c in chunks]
-    doc_vecs    = embed_texts(texts)          # (N, 3072)
-    query_vec   = embed_query(query)          # (3072,)
+    doc_vecs    = embed_texts(texts)          # (N, 768)
+    query_vec   = embed_query(query)          # (768,)
 
     scores      = doc_vecs @ query_vec        # cosine sim (unit vectors)
 

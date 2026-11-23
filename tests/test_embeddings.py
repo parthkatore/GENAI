@@ -27,9 +27,20 @@ def test_embed_texts_batches_requests_and_normalizes_vectors():
 
     assert result.shape == (51, embed.EMBEDDING_DIMENSIONS)
     assert np.allclose(result[0, :2], [0.6, 0.8])
-    assert [len(call.kwargs["contents"]) for call in client.models.embed_content.call_args_list] == [50, 1]
+    assert [len(call.kwargs["contents"]) for call in client.models.embed_content.call_args_list] == [
+        10,
+        10,
+        10,
+        10,
+        10,
+        1,
+    ]
     assert all(
         call.kwargs["config"].task_type == "RETRIEVAL_DOCUMENT"
+        for call in client.models.embed_content.call_args_list
+    )
+    assert all(
+        call.kwargs["config"].output_dimensionality == embed.EMBEDDING_DIMENSIONS
         for call in client.models.embed_content.call_args_list
     )
 

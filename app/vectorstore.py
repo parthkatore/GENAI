@@ -115,7 +115,7 @@ def build_index(force_rebuild: bool = False) -> int:
     # Embed all chunks
     print(f"[vectorstore] Embedding {len(chunks)} chunks …")
     texts    = [c.text for c in chunks]
-    vectors  = embed_texts(texts)             # (N, 3072) float32, unit-normalised
+    vectors  = embed_texts(texts)             # (N, 768) float32, unit-normalised
 
     # ChromaDB add in batches of 100 (API limit)
     BATCH = 100

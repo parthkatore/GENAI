@@ -35,7 +35,7 @@ flowchart TD
     R -->|message| AGT[app/agent_loop.py + graph.py\nReAct loop / LangGraph]
     R -->|query| VS[app/vectorstore.py\nChromaDB HNSW]
 
-    RAG --> EMB[app/embed.py\nGemini Embedding API\n3072-dim vectors]
+    RAG --> EMB[app/embed.py\nGemini Embedding API\n768-dim vectors]
     AGT --> TOOLS[app/tools.py\nrag_search\nled_resistor_calculator]
     TOOLS --> RAG
 
@@ -337,7 +337,7 @@ GENAI/
 | FastAPI 0.110 | REST API backend |
 | Streamlit 1.35 | Chat UI |
 | ChromaDB 1.5 | Vector store (HNSW cosine index) |
-| Google Gen AI SDK | Gemini Embedding API (3072-dim vectors) |
+| Google Gen AI SDK | Gemini Embedding API (768-dim vectors) |
 | Groq SDK | LLM inference (qwen/qwen3.8-27b) |
 | LangGraph | Agent with memory and approval gate |
 | pytest 9.2 | 74 automated tests |
