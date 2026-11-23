@@ -16,10 +16,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy and install dependencies first (layer-cached unless requirements change)
+# Copy requirements first (layer-cached unless requirements change)
 COPY requirements.txt .
+
+# Install CPU-only torch first (skips ~3 GB of CUDA packages),
+# then everything else. pip sees torch as already satisfied.
 RUN pip install --upgrade pip --root-user-action=ignore \
- && pip install --prefix=/install --no-cache-dir --root-user-action=ignore -r requirements.txt
+ && pip install --prefix=/install --no-cache-dir --root-user-action=ignore \
+      torch --index-url https://download.pytorch.org/whl/cpu \
+ && PYTHONPATH=/install/lib/python3.11/site-packages \
+    pip install --prefix=/install --no-cache-dir --root-user-action=ignore \
+      -r requirements.txt
 
 
 # ---- Stage 2: runtime ----
