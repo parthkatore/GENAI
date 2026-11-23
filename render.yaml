@@ -15,7 +15,7 @@ services:
     # Pass the runtime stage explicitly
     # (Render uses the final stage by default; this is explicit for clarity)
     envVars:
-      - key: LLM_PROVIDER
+      - key: PROVIDER
         value: groq
       - key: GROQ_API_KEY
         sync: false          # set in Render dashboard — never committed to git
