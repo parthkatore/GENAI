@@ -1,48 +1,78 @@
-# Secrets — NEVER commit these
+# ============================================================
+# ArduinoMate — .gitignore
+# ============================================================
+
+# ------ Secrets — NEVER commit ------
 .env
 *.secret
 secrets.py
 
-# Python cache
+# ------ Python bytecode ------
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 
-# Virtual environments
+# ------ Virtual environments ------
 .venv/
 venv/
 env/
 ENV/
 
-# Testing
+# ------ Tool caches ------
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
 .coverage
 htmlcov/
 .tox/
 
-# IDE / editor
+# ------ IDE / editor ------
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS
+# ------ OS ------
 .DS_Store
 Thumbs.db
 
-# Build
+# ------ Build / packaging ------
 dist/
 build/
 *.egg-info/
 
-# Logs
+# ------ Logs ------
 *.log
 logs/
 
-# Jupyter
+# ------ Jupyter ------
 .ipynb_checkpoints/
 
-# ChromaDB persistent store (large binary index — rebuild locally)
+# ------ Data: generated / large binary ------
+# ChromaDB index — large binary, rebuilt automatically on startup
 data/chroma_db/
+
+# HuggingFace model weights — downloaded at runtime, never commit
+.hf_cache/
+*.hf_cache/
+
+# ------ Scratch / legacy root files ------
+# Day 1-2 scratch scripts superseded by the app package
+Day1_intro.py
+Day2_menu.py
+
+# Standalone HTML/JS prototype replaced by Streamlit UI
+index.html
+script.js
+
+# API test script replaced by pytest suite
+client.py
+
+# ------ Legacy top-level folders ------
+# GEN_AI/ was the original scratch folder before the project was structured
+GEN_AI/
+
+# ------ Screenshots placeholder ------
+docs/screenshots/
