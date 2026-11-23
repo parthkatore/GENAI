@@ -1,4 +1,0 @@
-"""
-ArduinoMate Test Suite Package
-"""
-

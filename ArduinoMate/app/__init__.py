@@ -1,4 +1,0 @@
-"""
-ArduinoMate Application Package
-"""
-

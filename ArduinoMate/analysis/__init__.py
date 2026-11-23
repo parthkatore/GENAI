@@ -1,4 +1,0 @@
-"""
-ArduinoMate Analysis Package
-"""
-

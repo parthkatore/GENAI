@@ -37,11 +37,14 @@ htmlcov/
 # ------ OS ------
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # ------ Build / packaging ------
 dist/
 build/
 *.egg-info/
+*.whl
+*.tar.gz
 
 # ------ Logs ------
 *.log
@@ -49,30 +52,41 @@ logs/
 
 # ------ Jupyter ------
 .ipynb_checkpoints/
+*.ipynb
 
 # ------ Data: generated / large binary ------
 # ChromaDB index — large binary, rebuilt automatically on startup
 data/chroma_db/
+*.sqlite3
+*.bin
+*.parquet
 
-# HuggingFace model weights — downloaded at runtime, never commit
+# HuggingFace model weights — downloaded at runtime (can be GBs)
 .hf_cache/
-*.hf_cache/
+**/.hf_cache/
+hf_cache/
 
-# ------ Scratch / legacy root files ------
-# Day 1-2 scratch scripts superseded by the app package
+# ------ Runtime data ------
+# User feedback collected at runtime — not source code
+data/feedback.json
+data/feedback*.json
+
+# ------ Legacy folders — kept locally for reference, not needed in repo ------
+# Week-1 code before the project was restructured into app/
+ArduinoMate/
+
+# Original scratch folder from day 1-2
+GEN_AI/
+
+# ------ Root-level prototype files replaced by proper implementation ------
 Day1_intro.py
 Day2_menu.py
-
-# Standalone HTML/JS prototype replaced by Streamlit UI
+client.py
 index.html
 script.js
 
-# API test script replaced by pytest suite
-client.py
-
-# ------ Legacy top-level folders ------
-# GEN_AI/ was the original scratch folder before the project was structured
-GEN_AI/
-
-# ------ Screenshots placeholder ------
+# ------ Docs: empty placeholder ------
 docs/screenshots/
+
+# ------ Docker local artifacts ------
+.dockerenv
