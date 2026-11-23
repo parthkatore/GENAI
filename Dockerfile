@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy and install dependencies first (layer-cached unless requirements change)
 COPY requirements.txt .
-RUN pip install --upgrade pip \
- && pip install --prefix=/install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip --root-user-action=ignore \
+ && pip install --prefix=/install --no-cache-dir --root-user-action=ignore -r requirements.txt
 
 
 # ---- Stage 2: runtime ----
