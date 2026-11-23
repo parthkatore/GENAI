@@ -71,9 +71,14 @@ hf_cache/
 data/feedback.json
 data/feedback*.json
 
-# ------ Legacy folders — kept locally for reference, not needed in repo ------
-# Week-1 code before the project was restructured into app/
-ArduinoMate/
+# ------ Legacy folders — kept locally for reference ------
+# ArduinoMate/ is mostly legacy, but data/ inside it is read by app/chunking.py
+# (order of these five lines matters, do not rearrange)
+ArduinoMate/*
+!ArduinoMate/data/
+ArduinoMate/data/*
+!ArduinoMate/data/records.json
+!ArduinoMate/data/raw/
 
 # Original scratch folder from day 1-2
 GEN_AI/
