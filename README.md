@@ -1,7 +1,7 @@
 ﻿# ArduinoMate
 
 [![CI](https://github.com/parthkatore/GENAI/actions/workflows/ci.yml/badge.svg)](https://github.com/parthkatore/GENAI/actions/workflows/ci.yml)
-[![Deploy](https://img.shields.io/badge/deploy-Render-46E3B7?logo=render)](https://arduinomate-api.onrender.com)
+[![Deploy](https://img.shields.io/badge/deploy-Render-46E3B7?logo=render)](https://arduinomate-ui.onrender.com)
 [![Python](https://img.shields.io/badge/python-3.11+-blue?logo=python)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 
@@ -321,7 +321,9 @@ GENAI/
 
 ## Demo
 
-> **Live API:** https://arduinomate-api.onrender.com/health
+> **Live app:** https://arduinomate-ui.onrender.com
+>
+> **API health:** https://arduinomate-api.onrender.com/health
 >
 > **Demo video:** *(add link here after recording)*
 

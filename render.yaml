@@ -5,6 +5,7 @@
 # Services
 # --------
 #   arduinomate-api  : FastAPI backend  (GET /health)
+#   arduinomate-ui   : Streamlit frontend (/_stcore/health)
 # ============================================================
 services:
   - type: web
@@ -26,4 +27,19 @@ services:
       - key: PORT
         value: "8000"
     healthCheckPath: /health
+    autoDeploy: true
+
+  - type: web
+    name: arduinomate-ui
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: streamlit run ui/app.py --server.address 0.0.0.0 --server.port $PORT --server.headless true --browser.gatherUsageStats false
+    envVars:
+      - key: ARDUINOMATE_API_URL
+        value: https://arduinomate-api.onrender.com
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    healthCheckPath: /_stcore/health
     autoDeploy: true

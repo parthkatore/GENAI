@@ -203,7 +203,7 @@ def _call_agent(message: str, thread_id: str, use_graph: bool, api_url: str) -> 
 
 def _health_check(api_url: str) -> dict | None:
     try:
-        r = requests.get(f"{api_url}/health", timeout=5)
+        r = requests.get(f"{api_url}/health", timeout=60)
         r.raise_for_status()
         return r.json()
     except Exception:
@@ -234,7 +234,7 @@ def _render_sidebar() -> dict[str, Any]:
                 f"Model: `{health.get('model', '?')}`"
             )
         else:
-            st.error("Backend offline — start `uvicorn main:app --reload`")
+            st.warning("Backend is starting or waking up. Retry shortly if it stays offline.")
 
         st.divider()
 
@@ -444,10 +444,7 @@ def _send_message(question: str, cfg: dict[str, Any]) -> None:
                 }
 
         except requests.exceptions.ConnectionError:
-            answer = (
-                "Could not connect to the ArduinoMate API. "
-                "Make sure the server is running: `uvicorn main:app --reload`"
-            )
+            answer = "Could not connect to the ArduinoMate API. Check that the backend is running and try again."
             meta = {}
         except requests.exceptions.Timeout:
             answer = "The API request timed out. Try again."
