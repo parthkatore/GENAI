@@ -23,8 +23,8 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from app.llm import active_model, chat
-from app.vectorstore import query_collection
+from backend.app.llm import active_model, chat
+from backend.app.vectorstore import query_collection
 
 # ---------------------------------------------------------------------------
 # Constants

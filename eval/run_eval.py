@@ -47,7 +47,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from app.rag import OUT_OF_SCOPE_MARKER, rag_answer  # noqa: E402
+from backend.app.rag import OUT_OF_SCOPE_MARKER, rag_answer  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Configuration pairs to compare
@@ -229,11 +229,11 @@ def main() -> None:
 
     if rebuild:
         print("[eval] Rebuilding vector index …")
-        from app.vectorstore import build_index
+        from backend.app.vectorstore import build_index
         build_index(force_rebuild=True)
     else:
         # Ensure index is built
-        from app.vectorstore import build_index
+        from backend.app.vectorstore import build_index
         build_index(force_rebuild=False)
 
     questions = json.loads(EVAL_PATH.read_text(encoding="utf-8"))

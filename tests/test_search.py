@@ -1,15 +1,17 @@
 """
 tests/test_search.py — Semantic search and chunking unit tests.
 ---------------------------------------------------------------
-Tests app.vectorstore.query_collection (mocked) and
-app.chunking.load_all_chunks to validate the retrieval pipeline
+Tests backend.app.vectorstore.query_collection (mocked) and
+backend.app.chunking.load_all_chunks to validate the retrieval pipeline
 without requiring a live ChromaDB index or network calls.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -19,7 +21,7 @@ class TestChunking:
 
     def test_load_all_chunks_returns_list(self):
         """load_all_chunks() must return a non-empty list."""
-        from app.chunking import load_all_chunks
+        from backend.app.chunking import load_all_chunks
 
         chunks = load_all_chunks()
         assert isinstance(chunks, list)
@@ -27,7 +29,7 @@ class TestChunking:
 
     def test_chunks_have_required_attributes(self):
         """Every Chunk must expose text, source, title, page, category, chunk_id."""
-        from app.chunking import Chunk, load_all_chunks
+        from backend.app.chunking import Chunk, load_all_chunks
 
         chunks = load_all_chunks()
         for chunk in chunks[:10]:  # spot-check the first 10
@@ -40,7 +42,7 @@ class TestChunking:
 
     def test_chunk_ids_are_unique(self):
         """All chunk IDs in the loaded set must be unique."""
-        from app.chunking import load_all_chunks
+        from backend.app.chunking import load_all_chunks
 
         chunks = load_all_chunks()
         ids = [c.chunk_id for c in chunks]
@@ -48,7 +50,7 @@ class TestChunking:
 
     def test_chunk_text_minimum_length(self):
         """No chunk should be shorter than MIN_CHARS (60 characters)."""
-        from app.chunking import MIN_CHARS, load_all_chunks
+        from backend.app.chunking import MIN_CHARS, load_all_chunks
 
         chunks = load_all_chunks()
         short = [c for c in chunks if len(c.text) < MIN_CHARS]
@@ -82,8 +84,8 @@ class TestSemanticSearch:
 
     def test_query_returns_list_of_dicts(self):
         """query_collection must return a list of dicts with required keys."""
-        with patch("app.vectorstore.query_collection", return_value=self._MOCK_HITS):
-            from app.vectorstore import query_collection
+        with patch("backend.app.vectorstore.query_collection", return_value=self._MOCK_HITS):
+            from backend.app.vectorstore import query_collection
 
             results = query_collection("What does pinMode do?", n_results=5)
             assert isinstance(results, list)
@@ -91,8 +93,8 @@ class TestSemanticSearch:
 
     def test_query_results_have_required_keys(self):
         """Each result dict must have title, source, page, text, score."""
-        with patch("app.vectorstore.query_collection", return_value=self._MOCK_HITS):
-            from app.vectorstore import query_collection
+        with patch("backend.app.vectorstore.query_collection", return_value=self._MOCK_HITS):
+            from backend.app.vectorstore import query_collection
 
             results = query_collection("digital pin")
             for hit in results:
@@ -101,8 +103,8 @@ class TestSemanticSearch:
 
     def test_scores_are_in_valid_range(self):
         """All returned scores must be between 0.0 and 1.0."""
-        with patch("app.vectorstore.query_collection", return_value=self._MOCK_HITS):
-            from app.vectorstore import query_collection
+        with patch("backend.app.vectorstore.query_collection", return_value=self._MOCK_HITS):
+            from backend.app.vectorstore import query_collection
 
             results = query_collection("pin mode")
             for hit in results:
@@ -110,10 +112,12 @@ class TestSemanticSearch:
                     f"Score {hit['score']} out of range for '{hit['title']}'"
                 )
 
-    def test_empty_collection_returns_empty_list(self):
-        """When the collection is empty, query_collection returns []."""
-        with patch("app.vectorstore.query_collection", return_value=[]):
-            from app.vectorstore import query_collection
+    def test_empty_collection_reports_index_not_ready(self):
+        """An unbuilt index must not be mistaken for an out-of-scope query."""
+        from backend.app.vectorstore import VectorIndexNotReadyError, query_collection
 
-            results = query_collection("anything")
-            assert results == []
+        collection = MagicMock()
+        collection.count.return_value = 0
+        with patch("backend.app.vectorstore.get_collection", return_value=collection):
+            with pytest.raises(VectorIndexNotReadyError, match="index is empty"):
+                query_collection("anything")

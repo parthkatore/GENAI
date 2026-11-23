@@ -137,7 +137,7 @@ def semantic_search(
 
     Args:
         query     : User query string.
-        chunks    : list[Chunk] from app.chunking.
+        chunks    : list[Chunk] from backend.app.chunking.
         top_k     : Maximum results to return.
         min_score : Minimum cosine similarity to include.
 
@@ -178,7 +178,7 @@ def semantic_search(
 
 
 if __name__ == "__main__":
-    from app.chunking import load_all_chunks
+    from backend.app.chunking import load_all_chunks
 
     chunks = load_all_chunks()
     print(f"Chunks loaded: {len(chunks)}")

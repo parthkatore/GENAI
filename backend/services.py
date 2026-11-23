@@ -6,7 +6,7 @@ Business logic layer between the FastAPI routes and the LLM provider.
 Responsibilities:
 - Load the ArduinoMate system prompt from prompts/system_prompt.txt.
 - Load the correct task prompt (explain / debug) from prompts/.
-- Build the messages list and call app.llm.chat().
+- Build the messages list and call backend.app.llm.chat().
 - Parse the JSON reply from the LLM into a structured ChatResponse dict.
 - Handle JSON parse failures gracefully so the API never returns a 500.
 """
@@ -16,12 +16,12 @@ import re
 from pathlib import Path
 from typing import Any
 
-from app.llm import active_model, chat
+from backend.app.llm import active_model, chat
 
 # ---------------------------------------------------------------------------
 # Prompt file paths
 # ---------------------------------------------------------------------------
-BASE_DIR      = Path(__file__).resolve().parent
+BASE_DIR      = Path(__file__).resolve().parent.parent
 PROMPTS_DIR   = BASE_DIR / "prompts"
 SYSTEM_PROMPT = PROMPTS_DIR / "system_prompt.txt"
 TASK_PROMPTS  = {

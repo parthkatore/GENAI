@@ -47,7 +47,7 @@ def _record_tokens(prompt_tokens: int, completion_tokens: int) -> None:
     where the middleware has not been loaded.
     """
     try:
-        from app.middleware import token_usage  # noqa: PLC0415
+        from backend.app.middleware import token_usage  # noqa: PLC0415
         token_usage.set({
             "prompt_tokens": prompt_tokens,
             "completion_tokens": completion_tokens,

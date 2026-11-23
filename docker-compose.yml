@@ -1,5 +1,3 @@
-version: "3.9"
-
 # ============================================================
 # ArduinoMate — docker compose up
 #
@@ -43,7 +41,7 @@ services:
     container_name: arduinomate_api
     command:
       - uvicorn
-      - main:app
+      - backend.main:app
       - --host
       - "0.0.0.0"
       - --port
@@ -78,7 +76,7 @@ services:
     command:
       - streamlit
       - run
-      - ui/app.py
+      - frontend/app.py
       - --server.port=8501
       - --server.address=0.0.0.0
       - --server.headless=true

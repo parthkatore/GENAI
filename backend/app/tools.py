@@ -131,7 +131,7 @@ def rag_search(question: str) -> str:
         Answer string with inline citation titles; or "I don't know …" if
         the question is out of scope.
     """
-    from app.rag import rag_answer
+    from backend.app.rag import rag_answer
 
     resp = rag_answer(question, top_k=5, min_score=0.20)
     if resp.out_of_scope or not resp.citations:

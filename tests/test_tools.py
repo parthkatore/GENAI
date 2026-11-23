@@ -1,7 +1,7 @@
 """
 tests/test_tools.py — Agent tool unit tests.
 --------------------------------------------
-Tests app.tools.led_resistor_calculator directly (pure arithmetic — no
+Tests backend.app.tools.led_resistor_calculator directly (pure arithmetic — no
 network, no LLM) and tests rag_search with a stubbed rag_answer to
 confirm the dispatcher and E12 rounding are both correct.
 """
@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from app.tools import call_tool, led_resistor_calculator
+from backend.app.tools import call_tool, led_resistor_calculator
 
 
 class TestLedResistorCalculator:
@@ -54,7 +54,7 @@ class TestLedResistorCalculator:
 
     def test_e12_rounding_always_rounds_up(self):
         """The returned E12 value must always be >= the exact resistance."""
-        from app.tools import _next_e12  # access the helper directly
+        from backend.app.tools import _next_e12  # access the helper directly
 
         # Spot-check several values
         assert _next_e12(100) == 100
@@ -75,8 +75,8 @@ class TestRagSearchTool:
         mock_resp.out_of_scope = False
         mock_resp.citations = []
 
-        with patch("app.rag.rag_answer", return_value=mock_resp):
-            from app.tools import rag_search
+        with patch("backend.app.rag.rag_answer", return_value=mock_resp):
+            from backend.app.tools import rag_search
 
             result = rag_search("What does pinMode do?")
         assert isinstance(result, str)
@@ -89,8 +89,8 @@ class TestRagSearchTool:
         mock_resp.out_of_scope = True
         mock_resp.citations = []
 
-        with patch("app.rag.rag_answer", return_value=mock_resp):
-            from app.tools import rag_search
+        with patch("backend.app.rag.rag_answer", return_value=mock_resp):
+            from backend.app.tools import rag_search
 
             result = rag_search("How do I wire an HC-SR04 sensor?")
         assert "don't know" in result.lower() or "i don" in result.lower()
@@ -108,8 +108,8 @@ class TestRagSearchTool:
         mock_resp.out_of_scope = False
         mock_resp.citations = [mock_citation]
 
-        with patch("app.rag.rag_answer", return_value=mock_resp):
-            from app.tools import rag_search
+        with patch("backend.app.rag.rag_answer", return_value=mock_resp):
+            from backend.app.tools import rag_search
 
             result = rag_search("pinMode")
         assert "Sources:" in result or "Sources" in result
@@ -139,7 +139,7 @@ class TestCallToolDispatcher:
         mock_resp.out_of_scope = False
         mock_resp.citations = []
 
-        with patch("app.rag.rag_answer", return_value=mock_resp):
+        with patch("backend.app.rag.rag_answer", return_value=mock_resp):
             result = call_tool("rag_search", {"question": "What is analogRead?"})
         assert isinstance(result, str)
         assert "analogRead" in result or "0" in result

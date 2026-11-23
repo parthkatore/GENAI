@@ -2,7 +2,7 @@
 line-length = 120
 target-version = "py311"
 
-# Only lint the Day 6-10 source tree; skip old ArduinoMate/, venv/, __pycache__
+# Lint app source; skip legacy ArduinoMate/, virtualenvs, and generated files.
 exclude = [
     ".git",
     "__pycache__",
@@ -30,7 +30,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["app", "ui"]
+known-first-party = ["backend", "frontend"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

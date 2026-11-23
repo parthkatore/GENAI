@@ -35,7 +35,7 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    dockerCommand: streamlit run ui/app.py --server.address 0.0.0.0 --server.port $PORT --server.headless true --browser.gatherUsageStats false
+    dockerCommand: streamlit run frontend/app.py --server.address 0.0.0.0 --server.port $PORT --server.headless true --browser.gatherUsageStats false
     envVars:
       - key: ARDUINOMATE_API_URL
         value: https://arduinomate-api.onrender.com

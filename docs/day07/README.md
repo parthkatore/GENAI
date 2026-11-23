@@ -174,12 +174,12 @@ HF_HOME=D:/hf_cache
 
 ### Start server (index builds automatically on first run)
 ```bash
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 ### Force rebuild the vector index
 ```bash
-python -c "from app.vectorstore import build_index; build_index(force_rebuild=True)"
+python -c "from backend.app.vectorstore import build_index; build_index(force_rebuild=True)"
 ```
 
 ---
@@ -220,7 +220,7 @@ See `eval/search_results.md` for full results.
 
 ```bash
 # Start the server
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 
 # Test semantic search
 curl "http://127.0.0.1:8000/search/semantic?q=how+to+read+a+button&limit=3"

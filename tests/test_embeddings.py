@@ -6,8 +6,8 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-import app.embed as embed
-import app.vectorstore as vectorstore
+import backend.app.embed as embed
+import backend.app.vectorstore as vectorstore
 
 _build_index = vectorstore.build_index
 
@@ -22,7 +22,7 @@ def test_embed_texts_batches_requests_and_normalizes_vectors():
         ]
     )
 
-    with patch("app.embed._get_client", return_value=client):
+    with patch("backend.app.embed._get_client", return_value=client):
         result = embed.embed_texts(["Arduino docs"] * 51)
 
     assert result.shape == (51, embed.EMBEDDING_DIMENSIONS)
@@ -47,7 +47,7 @@ def test_embed_texts_batches_requests_and_normalizes_vectors():
 
 def test_embed_query_uses_retrieval_query_task_type():
     vectors = np.ones((1, embed.EMBEDDING_DIMENSIONS), dtype=np.float32)
-    with patch("app.embed.embed_texts", return_value=vectors) as embed_texts:
+    with patch("backend.app.embed.embed_texts", return_value=vectors) as embed_texts:
         result = embed.embed_query("How does pinMode work?")
 
     assert result.shape == (embed.EMBEDDING_DIMENSIONS,)

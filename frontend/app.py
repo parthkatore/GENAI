@@ -1,5 +1,5 @@
 """
-ui/app.py — ArduinoMate Streamlit Chat Interface
+frontend/app.py — ArduinoMate Streamlit Chat Interface
 -------------------------------------------------
 Day 10: Streamlit frontend for the ArduinoMate FastAPI backend.
 
@@ -17,10 +17,10 @@ Features
 Run
 ---
     # Start the FastAPI backend first:
-    uvicorn main:app --reload --host 127.0.0.1 --port 8000
+    uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 
     # Then launch Streamlit:
-    streamlit run ui/app.py
+    streamlit run frontend/app.py
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ import streamlit.components.v1 as components
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from ui.pin_map import extract_pins, render_pin_map  # noqa: E402
+from frontend.pin_map import extract_pins, render_pin_map  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Constants

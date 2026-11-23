@@ -33,8 +33,8 @@ from typing import Any
 MIN_CHARS = 60    # merge section into next if shorter than this
 MAX_CHARS = 500   # split section if longer than this
 
-# Root of the GENAI workspace (parent of this app/ directory)
-BASE_DIR    = Path(__file__).resolve().parent.parent
+# Root of the GENAI workspace
+BASE_DIR    = Path(__file__).resolve().parents[2]
 RAW_DIR     = BASE_DIR / "ArduinoMate" / "data" / "raw"
 RECORDS_FILE = BASE_DIR / "ArduinoMate" / "data" / "records.json"
 

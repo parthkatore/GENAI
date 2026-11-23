@@ -169,7 +169,7 @@ copy .env.example .env
 
 ### 3. Start the API
 ```bash
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 ### 4. Test the chat endpoint

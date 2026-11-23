@@ -20,13 +20,14 @@ import logging
 import logging.config
 from contextlib import asynccontextmanager
 
-from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Query, status
+from fastapi import FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
-from app.llm import _get_provider, active_model
-from app.middleware import ProductionMiddleware
-from schema import (
+from backend.app.llm import _get_provider, active_model
+from backend.app.middleware import ProductionMiddleware
+from backend.app.vectorstore import VectorIndexNotReadyError
+from backend.schema import (
     AgentRequest,
     AgentResponse,
     AgentStepOut,
@@ -38,9 +39,7 @@ from schema import (
     SemanticHit,
     SemanticSearchResponse,
 )
-from services import generate_response
-
-load_dotenv()
+from backend.services import generate_response
 
 # ---------------------------------------------------------------------------
 # Logging -- structured single-line format, INFO level
@@ -68,6 +67,9 @@ logging.config.dictConfig({
 # Lifespan -- build vector index in a background thread so the port binds
 # immediately (Render's port scanner won't time out waiting for embeddings)
 # ---------------------------------------------------------------------------
+_index_status = "not_started"
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import asyncio
@@ -76,10 +78,21 @@ async def lifespan(app: FastAPI):
     _log = _logging.getLogger("arduinomate")
 
     async def _build():
-        from app.vectorstore import build_index
-        _log.info("[startup] building vector index in background thread ...")
-        await asyncio.to_thread(build_index, False)
-        _log.info("[startup] vector index ready")
+        global _index_status
+        from backend.app.vectorstore import build_index
+
+        _index_status = "building"
+        _log.info("[startup] building vector index in background thread")
+        try:
+            count = await asyncio.to_thread(build_index, False)
+            if count == 0:
+                raise RuntimeError("No Arduino documentation chunks were indexed.")
+        except Exception:
+            _index_status = "failed"
+            _log.exception("[startup] vector index build failed")
+        else:
+            _index_status = "ready"
+            _log.info("[startup] vector index ready with %s chunks", count)
 
     asyncio.create_task(_build())
     yield
@@ -119,6 +132,17 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(VectorIndexNotReadyError)
+async def vector_index_not_ready_handler(
+    request: Request,
+    exc: VectorIndexNotReadyError,
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content={"detail": str(exc)},
+    )
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -135,13 +159,18 @@ def home():
 
 @app.get("/health", tags=["System"], summary="Health Check")
 def health():
-    from app.middleware import get_cache
-    from app.vectorstore import get_collection
+    from backend.app.middleware import get_cache
+    from backend.app.vectorstore import get_collection
     try:
         count = get_collection().count()
     except Exception:
         count = -1
     cache = get_cache()
+    rag_status = (
+        "ready"
+        if isinstance(count, int) and count > 0
+        else _index_status
+    )
     return {
         "status":          "healthy",
         "service":         "ArduinoMate API",
@@ -149,6 +178,7 @@ def health():
         "provider":        _get_provider(),
         "model":           active_model(),
         "indexed_chunks":  count,
+        "rag_status":      rag_status,
         "cache_size":      cache.size,
         "cache_hits":      cache.hits,
         "cache_misses":    cache.misses,
@@ -203,7 +233,7 @@ def semantic_search_endpoint(
         description="Maximum number of results to return.",
     ),
 ) -> SemanticSearchResponse:
-    from app.vectorstore import query_collection
+    from backend.app.vectorstore import query_collection
     if not q.strip():
         return SemanticSearchResponse(query=q, total_results=0, results=[])
     hits = query_collection(query=q, n_results=limit, min_score=0.15)
@@ -228,7 +258,7 @@ def semantic_search_endpoint(
     ),
 )
 def ask_endpoint(payload: AskRequest) -> AskResponse:
-    from app.rag import rag_answer
+    from backend.app.rag import rag_answer
     result = rag_answer(
         question=payload.question,
         top_k=payload.top_k,
@@ -261,7 +291,7 @@ def ask_endpoint(payload: AskRequest) -> AskResponse:
 )
 def agent_endpoint(payload: AgentRequest) -> AgentResponse:
     if payload.use_graph:
-        from app.graph import run_graph
+        from backend.app.graph import run_graph
         result = run_graph(
             user_message=payload.message,
             thread_id=payload.thread_id or "default",
@@ -276,7 +306,7 @@ def agent_endpoint(payload: AgentRequest) -> AgentResponse:
             num_steps=len(steps),
         )
     else:
-        from app.agent_loop import run_agent
+        from backend.app.agent_loop import run_agent
         result = run_agent(
             user_message=payload.message,
             session_id=payload.thread_id or "default",

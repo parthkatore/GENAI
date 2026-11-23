@@ -27,7 +27,7 @@
 
 ## Day 10 — Streamlit Chat UI
 
-- Streamlit interface (`ui/app.py`) with citations, thumbs feedback, and agent trace
+- Streamlit interface (`frontend/app.py`) with citations, thumbs feedback, and agent trace
 - Arduino Uno interactive pin map (`ui/pin_map.py`)
 - checkpoint-2 tag
 

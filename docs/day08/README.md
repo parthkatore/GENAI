@@ -230,7 +230,7 @@ educational assistant.
 pip install -r requirements.txt
 
 # Start the server (index auto-builds on startup)
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 
 # Test RAG endpoint
 curl -X POST http://127.0.0.1:8000/ask ^
@@ -261,7 +261,7 @@ python eval/run_eval.py --rebuild
 
 ```bash
 # Start server
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 
 # RAG answer
 curl -X POST http://127.0.0.1:8000/ask ^

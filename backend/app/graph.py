@@ -55,8 +55,8 @@ from langgraph.checkpoint.memory import MemorySaver
 # LangGraph imports
 from langgraph.graph import END, StateGraph
 
-from app.llm import active_model, chat
-from app.tools import call_tool
+from backend.app.llm import active_model, chat
+from backend.app.tools import call_tool
 
 # ---------------------------------------------------------------------------
 # Constants

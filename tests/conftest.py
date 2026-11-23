@@ -4,7 +4,7 @@ tests/conftest.py -- Shared pytest fixtures for ArduinoMate Day 11/12 tests.
 Strategy
 --------
 Heavy optional deps (chromadb, langgraph, langchain*)
-are stubbed into sys.modules BEFORE any app module is imported.  This lets
+are stubbed into sys.modules BEFORE any backend module is imported.  This lets
 tests run in a plain Python 3.11 environment with only the packages listed
 in requirements.txt that are already available (fastapi, pydantic, groq ...).
 
@@ -32,7 +32,7 @@ if str(ROOT) not in sys.path:
 
 
 # ---------------------------------------------------------------------------
-# Stub heavy / unavailable packages so app.* modules can be imported without
+# Stub heavy / unavailable packages so backend.app.* modules can be imported without
 # them being installed.
 # ---------------------------------------------------------------------------
 def _stub(name: str) -> MagicMock:
@@ -89,37 +89,36 @@ MOCK_HITS = [
 
 
 # ---------------------------------------------------------------------------
-# Session fixture: patch app.llm.chat
+# Session fixture: patch backend.app.llm.chat
 # ---------------------------------------------------------------------------
 @pytest.fixture(scope="session")
 def fake_llm_patch():
-    """Replace app.llm.chat with a stub — no Groq API key needed."""
-    import app.llm  # noqa: F401
-    with patch("app.llm.chat", return_value=FAKE_RAG_ANSWER) as mock_chat:
+    """Replace backend.app.llm.chat with a stub — no Groq API key needed."""
+    import backend.app.llm  # noqa: F401
+    with patch("backend.app.llm.chat", return_value=FAKE_RAG_ANSWER) as mock_chat:
         yield mock_chat
 
 
 # ---------------------------------------------------------------------------
 # Session fixture: FastAPI TestClient
 # ---------------------------------------------------------------------------
-@pytest.fixture(scope="session")
+@pytest.fixture
 def api_client(fake_llm_patch):
     """
     Session-scoped TestClient.  All heavy deps and I/O are mocked.
     ProductionMiddleware runs for real so test_production.py can verify
     injection blocking, caching, and latency headers.
     """
-    import app.rag  # noqa: F401
-    import app.vectorstore  # noqa: F401
+    import backend.app.rag  # noqa: F401
+    import backend.app.vectorstore  # noqa: F401
 
     with (
-        patch("app.vectorstore.query_collection", return_value=MOCK_HITS),
-        patch("app.vectorstore.build_index", return_value=1),
-        patch("app.rag.query_collection", return_value=MOCK_HITS),
+        patch("backend.app.vectorstore.query_collection", return_value=MOCK_HITS),
+        patch("backend.app.vectorstore.build_index", return_value=1),
+        patch("backend.app.rag.query_collection", return_value=MOCK_HITS),
     ):
-        # Remove any previously cached import of main so the patches above
-        # are visible when main.py is imported fresh inside this context.
-        sys.modules.pop("main", None)
-        from main import app as fastapi_app  # noqa: PLC0415
-        client = TestClient(fastapi_app, raise_server_exceptions=False)
-        yield client
+        # Remove cached backend imports so the patches above apply to a fresh app.
+        sys.modules.pop("backend.main", None)
+        from backend.main import app as fastapi_app  # noqa: PLC0415
+        with TestClient(fastapi_app, raise_server_exceptions=False) as client:
+            yield client

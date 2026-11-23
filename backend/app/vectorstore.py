@@ -22,13 +22,13 @@ from typing import Any
 import chromadb
 from chromadb.config import Settings
 
-from app.chunking import load_all_chunks
-from app.embed import EMBEDDING_DIMENSIONS, EMBEDDING_MODEL, embed_texts
+from backend.app.chunking import load_all_chunks
+from backend.app.embed import EMBEDDING_DIMENSIONS, EMBEDDING_MODEL, embed_texts
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-BASE_DIR   = Path(__file__).resolve().parent.parent
+BASE_DIR   = Path(__file__).resolve().parent.parent.parent
 CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
 COLLECTION_NAME = "arduinomate_docs"
 COLLECTION_METADATA = {
@@ -36,6 +36,11 @@ COLLECTION_METADATA = {
     "embedding_model": EMBEDDING_MODEL,
     "embedding_dimensions": EMBEDDING_DIMENSIONS,
 }
+
+
+class VectorIndexNotReadyError(RuntimeError):
+    """Raised when semantic search is requested before documents are indexed."""
+
 
 # ---------------------------------------------------------------------------
 # ChromaDB client (persistent)
@@ -166,17 +171,20 @@ def query_collection(
         List of dicts with keys: chunk_id, title, source, page, category,
         text (truncated to 300 chars), score.
     """
-    from app.embed import embed_query
+    from backend.app.embed import embed_query
 
-    collection  = get_collection()
-    if collection.count() == 0:
-        return []
+    collection = get_collection()
+    collection_count = collection.count()
+    if collection_count == 0:
+        raise VectorIndexNotReadyError(
+            "The Arduino documentation index is empty. Check GEMINI_API_KEY and backend startup logs."
+        )
 
     query_vec   = embed_query(query).tolist()
 
     results = collection.query(
         query_embeddings=[query_vec],
-        n_results=min(n_results, collection.count()),
+        n_results=min(n_results, collection_count),
         include=["documents", "metadatas", "distances"],
     )
 

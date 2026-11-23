@@ -21,12 +21,12 @@ ArduinoMate solves this with **Retrieval-Augmented Generation (RAG)**: every ans
 
 ```mermaid
 flowchart TD
-    U([User]) --> UI[Streamlit Chat UI\nui/app.py :8501]
+    U([User]) --> UI[Streamlit Chat UI\nfrontend/app.py :8501]
     U --> SW[Swagger Docs\n/docs :8000]
 
     UI -->|POST /ask\nPOST /agent\nGET /search/semantic| MW
 
-    subgraph API ["FastAPI Backend  (main.py :8000)"]
+    subgraph API ["FastAPI Backend  (backend/main.py :8000)"]
         MW[ProductionMiddleware\nlatency · cache · injection guard]
         MW --> R[Routes\n/chat  /ask  /agent  /search/semantic]
     end
@@ -115,6 +115,18 @@ Config B wins on every accuracy metric. Config A's lower latency is not worth th
 
 ## Quick Start
 
+The API lives in `backend/` and the Streamlit interface lives in `frontend/`.
+The persistent ChromaDB index and user feedback are generated under `data/` and
+excluded from Git; the Arduino reference documents in `ArduinoMate/data/` remain
+the source material.
+
+```text
+backend/             FastAPI entry point, schemas, services, and RAG modules
+frontend/            Streamlit chat and Arduino pin map
+ArduinoMate/data/    Arduino reference source documents and records
+data/                Runtime ChromaDB index and feedback (gitignored)
+```
+
 ```bash
 # 1. Clone
 git clone https://github.com/parthkatore/GENAI.git
@@ -123,16 +135,18 @@ cd GENAI
 # 2. Environment
 cp .env.example .env
 # Edit .env — set GROQ_API_KEY and GEMINI_API_KEY
+# GEMINI_API_KEY is required to build the Arduino search index, even with Groq chat.
 
 # 3. Install
 pip install -r requirements.txt
 
 # 4. Run API
-uvicorn main:app --reload
+uvicorn backend.main:app --reload
+# Check http://localhost:8000/health; wait for rag_status "ready" before asking.
 # API docs at http://localhost:8000/docs
 
 # 5. Run UI (separate terminal)
-streamlit run ui/app.py
+streamlit run frontend/app.py
 # Chat at http://localhost:8501
 ```
 
@@ -154,7 +168,7 @@ docker compose up --build
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/health` | Liveness check; returns cache stats and indexed chunk count |
+| `GET` | `/health` | Liveness and RAG index status (`rag_status`: not_started, building, ready, or failed) |
 | `GET` | `/` | Welcome, version, active provider |
 | `POST` | `/chat` | Direct LLM answer (no retrieval) |
 | `GET` | `/search/semantic?q=` | Semantic search over documentation chunks |
@@ -168,6 +182,7 @@ docker compose up --build
   "version": "6.0.0",
   "provider": "groq",
   "model": "qwen/qwen3.8-27b",
+  "rag_status": "ready",
   "indexed_chunks": 109,
   "cache_size": 3,
   "cache_hits": 12,

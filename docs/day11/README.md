@@ -31,7 +31,7 @@ multi-stage `Dockerfile`, a `.dockerignore`, and a `docker-compose.yml` so
 - [x] `Dockerfile` — multi-stage build (builder + runtime); non-root user
 - [x] `.dockerignore` — excludes `.env`, `chroma_db/`, `hf_cache/`, venv, pycache
 - [x] `docker-compose.yml` — `api` + `ui` services with health check, named volumes, env_file
-- [x] `ui/app.py` updated — reads `ARDUINOMATE_API_URL` env var (Docker internal DNS)
+- [x] `frontend/app.py` updated — reads `ARDUINOMATE_API_URL` env var (Docker internal DNS)
 - [x] `README.md` updated — **Run with Docker** section added
 - [x] Git commit + push + `day-11` tag
 
@@ -51,7 +51,7 @@ multi-stage `Dockerfile`, a `.dockerignore`, and a `docker-compose.yml` so
 | `Dockerfile` | Created | Multi-stage image (builder + slim runtime) |
 | `.dockerignore` | Created | Excludes secrets, cache, venv from image |
 | `docker-compose.yml` | Created | `api` + `ui` services, volumes, health check |
-| `ui/app.py` | Updated | `ARDUINOMATE_API_URL` env var support |
+| `frontend/app.py` | Updated | `ARDUINOMATE_API_URL` env var support |
 | `README.md` | Updated | **Run with Docker** section |
 | `docs/day11/README.md` | Created | This file |
 
@@ -94,7 +94,7 @@ imports, so no Groq API key or running server is needed:
 def api_client(fake_llm_patch):
     with patch("app.vectorstore.query_collection", return_value=mock_hits), \
          patch("app.vectorstore.build_index", return_value=1):
-        from main import app
+        from backend.main import app
         yield TestClient(app)
 ```
 
@@ -125,13 +125,13 @@ exclude = ["ArduinoMate", "GEN_AI", "venv", "data", "docs"]
 docker compose up --build
         │
         ├── api  (port 8000)  python:3.11-slim
-        │     uvicorn main:app --host 0.0.0.0 --port 8000
+        │     uvicorn backend.main:app --host 0.0.0.0 --port 8000
         │     volumes: chroma_data → /app/data/chroma_db
         │              hf_cache    → /app/.hf_cache
         │     healthcheck: GET /health every 30 s
         │
         └── ui   (port 8501)  python:3.11-slim
-              streamlit run ui/app.py --server.port=8501
+              streamlit run frontend/app.py --server.port=8501
               depends_on: api (service_healthy)
               env: ARDUINOMATE_API_URL=http://api:8000
 ```

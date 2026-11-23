@@ -72,6 +72,21 @@ class TestAskEndpoint:
         assert "out_of_scope" in data
         assert isinstance(data["out_of_scope"], bool)
 
+    def test_ask_reports_empty_index_as_service_unavailable(self, api_client):
+        """A missing vector index must not be reported as an out-of-scope question."""
+        from unittest.mock import patch
+
+        from backend.app.vectorstore import VectorIndexNotReadyError
+
+        with patch(
+            "backend.app.rag.query_collection",
+            side_effect=VectorIndexNotReadyError("The Arduino documentation index is empty."),
+        ):
+            resp = api_client.post("/ask", json={"question": "What does pinMode do?"})
+
+        assert resp.status_code == 503
+        assert "index is empty" in resp.json()["detail"]
+
     def test_ask_question_too_short_returns_422(self, api_client):
         """POST /ask with a 2-character question must return HTTP 422."""
         resp = api_client.post("/ask", json={"question": "Hi"})
@@ -115,7 +130,7 @@ class TestAgentEndpoint:
         """POST /agent with a valid message must return HTTP 200."""
         from unittest.mock import patch
 
-        with patch("app.llm.chat", return_value=self._FAKE_TOOL_ANSWER):
+        with patch("backend.app.llm.chat", return_value=self._FAKE_TOOL_ANSWER):
             resp = api_client.post(
                 "/agent",
                 json={
@@ -130,7 +145,7 @@ class TestAgentEndpoint:
         """POST /agent response must include a non-empty answer string."""
         from unittest.mock import patch
 
-        with patch("app.llm.chat", return_value=self._FAKE_TOOL_ANSWER):
+        with patch("backend.app.llm.chat", return_value=self._FAKE_TOOL_ANSWER):
             data = api_client.post(
                 "/agent",
                 json={"message": "What is analogWrite?", "use_graph": False},
@@ -143,7 +158,7 @@ class TestAgentEndpoint:
         """POST /agent response must include a steps list."""
         from unittest.mock import patch
 
-        with patch("app.llm.chat", return_value=self._FAKE_TOOL_ANSWER):
+        with patch("backend.app.llm.chat", return_value=self._FAKE_TOOL_ANSWER):
             data = api_client.post(
                 "/agent",
                 json={"message": "Explain millis()", "use_graph": False},

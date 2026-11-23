@@ -16,7 +16,7 @@ every pin mentioned in the LLM's answer — digital (D0–D13), PWM-capable (~3,
 
 ## Tasks Completed
 
-- [x] `ui/app.py` — full Streamlit chat interface calling `/ask` or `/agent`
+- [x] `frontend/app.py` — full Streamlit chat interface calling `/ask` or `/agent`
 - [x] `ui/pin_map.py` — Arduino Uno SVG renderer + `extract_pins()` parser
 - [x] Citations panel — expandable source list for every RAG answer
 - [x] Thumbs up / down — saves feedback records to `data/feedback.json`
@@ -34,7 +34,7 @@ every pin mentioned in the LLM's answer — digital (D0–D13), PWM-capable (~3,
 
 | File | Action | Description |
 |------|--------|-------------|
-| `ui/app.py` | Created | Streamlit chat UI — calls `/ask` and `/agent`, shows citations, pin map, feedback |
+| `frontend/app.py` | Created | Streamlit chat UI — calls `/ask` and `/agent`, shows citations, pin map, feedback |
 | `ui/pin_map.py` | Created | Arduino Uno SVG renderer; `extract_pins()` regex parser; `render_pin_map()` |
 | `ui/__init__.py` | Created | Package marker |
 | `data/feedback.json` | Created | Persistent feedback store (initially empty list) |
@@ -184,10 +184,10 @@ This commit marks **Checkpoint 2** of the ArduinoMate project.
 pip install -r requirements.txt
 
 # 2. Start the FastAPI backend
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 
 # 3. Launch Streamlit (in a second terminal)
-streamlit run ui/app.py
+streamlit run frontend/app.py
 ```
 
 Open: **http://localhost:8501**

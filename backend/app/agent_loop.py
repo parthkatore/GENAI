@@ -24,8 +24,8 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from app.llm import active_model, chat
-from app.tools import TOOLS, call_tool
+from backend.app.llm import active_model, chat
+from backend.app.tools import TOOLS, call_tool
 
 # ---------------------------------------------------------------------------
 # Constants

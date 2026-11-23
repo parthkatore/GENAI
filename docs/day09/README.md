@@ -207,7 +207,7 @@ Content-Type: application/json
 pip install -r requirements.txt
 
 # Start the server
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 
 # LED resistor question (LangGraph)
 curl -X POST http://127.0.0.1:8000/agent ^
