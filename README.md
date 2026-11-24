@@ -31,22 +31,22 @@ flowchart TD
         MW --> R[Routes\n/chat  /ask  /agent  /search/semantic]
     end
 
-    R -->|question| RAG[app/rag.py\nrag_answer]
-    R -->|message| AGT[app/agent_loop.py + graph.py\nReAct loop / LangGraph]
-    R -->|query| VS[app/vectorstore.py\nChromaDB HNSW]
+    R -->|question| RAG[backend/app/rag.py\nrag_answer]
+    R -->|message| AGT[backend/app/agent_loop.py + graph.py\nReAct loop / LangGraph]
+    R -->|query| VS[backend/app/vectorstore.py\nChromaDB HNSW]
 
-    RAG --> EMB[app/embed.py\nGemini Embedding API\n768-dim vectors]
-    AGT --> TOOLS[app/tools.py\nrag_search\nled_resistor_calculator]
+    RAG --> EMB[backend/app/embed.py\nGemini Embedding API\n768-dim vectors]
+    AGT --> TOOLS[backend/app/tools.py\nrag_search\nled_resistor_calculator]
     TOOLS --> RAG
 
     EMB --> VS
     VS -->|top-k chunks| RAG
-    RAG -->|context + question| LLM[app/llm.py\nGroq  qwen/qwen3.8-27b\nor Gemini 1.5 Flash]
+    RAG -->|context + question| LLM[backend/app/llm.py\nGroq  qwen/qwen3.8-27b\nor Gemini 1.5 Flash]
     LLM -->|answer + confidence| RAG
 
     subgraph Data ["Knowledge Base"]
-        RJ[data/records.json\n20 Arduino functions\nwith gotchas]
-        AD[data/raw/*.adoc\n10 official reference files]
+        RJ[ArduinoMate/data/records.json\n20 Arduino functions\nwith gotchas]
+        AD[ArduinoMate/data/raw/*.adoc\n10 official reference files]
     end
 
     RJ --> EMB
@@ -109,11 +109,14 @@ Config B wins on every accuracy metric. Config A's lower latency is not worth th
 | **LED resistor calculator** | Ohm's law + E12 rounding: `R = (Vs - Vf) / I` |
 | **Streamlit UI** | Chat interface with citations, thumbs feedback, agent trace, and Arduino Uno pin map |
 | **Production hardening** | Latency + token logging, in-memory LRU cache (60 s TTL), 16 KB body limit, prompt-injection guard |
-| **CI/CD** | GitHub Actions: ruff lint + 70 pytest tests + Docker build & push to `parthkatore/arduinomate-api` on every merge to `master` |
+| **CI/CD** | GitHub Actions: ruff lint + 75 pytest tests + Docker build & push to `parthkatore/arduinomate-api` on every merge to `master` |
 
 ---
 
 ## Quick Start
+
+Interview preparation: [60-second pitch and likely questions](docs/interview.md).
+Day 14 demo checklist: [docs/day14/README.md](docs/day14/README.md).
 
 The API lives in `backend/` and the Streamlit interface lives in `frontend/`.
 The persistent ChromaDB index and user feedback are generated under `data/` and
@@ -208,7 +211,7 @@ docker compose up --build
 
 ## Production Notes
 
-The middleware in `app/middleware.py` adds four hardening layers with zero external dependencies:
+The middleware in `backend/app/middleware.py` adds four hardening layers with zero external dependencies:
 
 ### Latency and token logging
 
@@ -218,7 +221,7 @@ Every request emits one structured log line:
 2026-11-19T14:32:11  INFO  arduinomate  POST /ask  200  847ms  tokens=in:312/out:184
 ```
 
-The token counts come from the Groq `usage` object written into a `contextvars.ContextVar` by `app/llm.py` after each API call, then read by the middleware after the response is built. No shared state between requests.
+The token counts come from the Groq `usage` object written into a `contextvars.ContextVar` by `backend/app/llm.py` after each API call, then read by the middleware after the response is built. No shared state between requests.
 
 Observed timings from the Day 8 evaluation run (Groq, `qwen/qwen3.8-27b`):
 
@@ -267,14 +270,14 @@ Requests containing known instruction-override phrases are blocked with 400 and 
 WARN  arduinomate  400 INJECTION  POST /ask  pattern='ignore previous instructions'  ip=127.0.0.1
 ```
 
-The scanner checks 20 lowercase substrings (see `app/middleware.py`). It is intentionally conservative — it blocks known attack phrases without semantic analysis. The system prompt also treats retrieved documents as untrusted data and does not allow them to override instructions.
+The scanner checks 20 lowercase substrings (see `backend/app/middleware.py`). It is intentionally conservative — it blocks known attack phrases without semantic analysis. The system prompt also treats retrieved documents as untrusted data and does not allow them to override instructions.
 
 ---
 
 ## Testing
 
 ```bash
-# Run all 74 tests (no API key, no network, no GPU required)
+# Run all 75 tests (no API key, no network, no GPU required)
 pytest tests/ -v
 
 # Lint
@@ -296,16 +299,14 @@ ruff check .
 
 ```
 GENAI/
-├── app/
-│   ├── llm.py            LLM provider wrapper (Groq + Gemini) + token tracking
-│   ├── middleware.py      Latency logging, cache, input limits, injection guard
-│   ├── rag.py             RAG pipeline: retrieve → augment → generate
-│   ├── vectorstore.py     ChromaDB HNSW vector store
-│   ├── embed.py           Gemini API embeddings
-│   ├── chunking.py        Semantic document chunking
-│   ├── tools.py           led_resistor_calculator, rag_search, call_tool
-│   ├── agent_loop.py      Hand-written ReAct loop
-│   └── graph.py           LangGraph agent with memory and approval gate
+├── backend/
+│   ├── main.py            FastAPI application entry point
+│   ├── schema.py          Pydantic request/response models
+│   ├── services.py        Business logic for /chat endpoint
+│   └── app/               RAG, vector store, LLM, middleware, and agent modules
+├── frontend/
+│   ├── app.py             Streamlit chat UI
+│   └── pin_map.py         Arduino Uno interactive pin map
 ├── tests/
 │   ├── conftest.py        Shared fixtures, heavy-dep stubs
 │   ├── test_records.py
@@ -313,12 +314,10 @@ GENAI/
 │   ├── test_api.py
 │   ├── test_tools.py
 │   └── test_production.py Production hardening tests
-├── ui/
-│   ├── app.py             Streamlit chat UI
-│   └── pin_map.py         Arduino Uno interactive pin map
-├── data/
+├── ArduinoMate/data/
 │   ├── records.json       20 Arduino functions with gotchas
 │   └── raw/               10 official .adoc reference files
+├── data/                  Runtime ChromaDB index and feedback (gitignored)
 ├── prompts/               System, QA, and task prompt templates
 ├── eval/                  15-question eval set and runner
 ├── docs/                  Day-by-day implementation notes
@@ -326,9 +325,6 @@ GENAI/
 ├── Dockerfile             Multi-stage build (builder + runtime)
 ├── docker-compose.yml     api (8000) + ui (8501) services
 ├── render.yaml            Render Blueprint for one-click deploy
-├── main.py                FastAPI application entry point
-├── schema.py              Pydantic request/response models
-├── services.py            Business logic for /chat endpoint
 └── requirements.txt
 ```
 
@@ -336,9 +332,9 @@ GENAI/
 
 ## Demo
 
-> **Live app:** https://arduinomate-ui.onrender.com
+> **Live app:** https://arduinomate-ui.onrender.com (currently returns 404; verify the deployment before demo)
 >
-> **API health:** https://arduinomate-api.onrender.com/health
+> **API health:** https://arduinomate-api.onrender.com/health (currently suspended)
 >
 > **Demo video:** *(add link here after recording)*
 
@@ -355,7 +351,7 @@ GENAI/
 | Google Gen AI SDK | Gemini Embedding API (768-dim vectors) |
 | Groq SDK | LLM inference (qwen/qwen3.8-27b) |
 | LangGraph | Agent with memory and approval gate |
-| pytest 9.2 | 74 automated tests |
+| pytest 9.2 | 75 automated tests |
 | ruff | Linter (E, W, F, I, UP rules) |
 | Docker | Multi-stage container image |
 | GitHub Actions | CI: lint + test + docker build |

@@ -5,7 +5,7 @@
 # Jobs
 # ----
 #   lint    : ruff check (style + imports)
-#   test    : pytest 74 tests (mocked LLM + ChromaDB, no API key needed)
+#   test    : pytest 75 tests (mocked LLM + ChromaDB, no API key needed)
 #   docker  : build + push to Docker Hub  (parthkatore/arduinomate-api)
 #             push only on master; PRs do build-only (no push)
 # ============================================================
@@ -41,7 +41,7 @@ jobs:
         run: ruff check .
 
   # ----------------------------------------------------------
-  # Job 2: Run pytest suite (74 tests, no live API key needed)
+  # Job 2: Run pytest suite (75 tests, no live API key needed)
   # ----------------------------------------------------------
   test:
     name: Test (pytest)
